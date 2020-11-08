@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 2e391391eede5a64484f39ed331e43b0
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - _depthTex: {instanceID: 0}
+  - bakedDepthTex: {instanceID: 0}
+  - settingsData: {fileID: 11400000, guid: 1b7c76fd6fd425c40b357f1248f40c62, type: 2}
+  - surfaceData: {fileID: 11400000, guid: 650ac1aae76806b4bb8cfbe7b185231a, type: 2}
+  - resources: {fileID: 11400000, guid: effb7415402a14a4fad75a505fa1429f, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
