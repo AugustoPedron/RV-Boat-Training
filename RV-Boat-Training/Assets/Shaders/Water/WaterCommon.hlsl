@@ -199,11 +199,11 @@ half4 WaterFragment(WaterVertexOutput IN) : SV_Target
 	half depthMulti = 1 / _MaxDepth;
 
 	// Lighting
-	half2 jitterUV = screenUV.xy * _ScreenParams.xy * _DitherPattern_TexelSize.xy;
+	half2 jitterUV = screenUV.xy * _ScreenParams.xy * _DitherPattern_TexelSize.xy * 100;
 #ifndef _STATIC_WATER
     jitterUV += frac(_Time.zw);
 #endif
-	float3 jitterTexture = SAMPLE_TEXTURE2D(_DitherPattern, sampler_DitherPattern, jitterUV).xyz * 2 - 1;
+	float3 jitterTexture = (SAMPLE_TEXTURE2D(_DitherPattern, sampler_DitherPattern, jitterUV).xyz - .3) * 2;
 	float3 lightJitter = IN.posWS + jitterTexture.xzy * 2.5;
 	Light mainLightJittered = GetMainLight(TransformWorldToShadowCoord(lightJitter));
 	Light mainLight = GetMainLight(TransformWorldToShadowCoord(IN.posWS));
