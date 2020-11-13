@@ -65,7 +65,7 @@ namespace BoatAttack
         {
             if (_yHeight > -0.1f) // if the engine is deeper than 0.1
             {
-                modifier = Mathf.Clamp(modifier, -1f, 1f); // clamp for reasonable values
+                //modifier = Mathf.Clamp(modifier, -10f, 10f); // clamp for reasonable values
                 var forward = RB.transform.forward;
                 forward.y = 0f;
                 forward.Normalize();
