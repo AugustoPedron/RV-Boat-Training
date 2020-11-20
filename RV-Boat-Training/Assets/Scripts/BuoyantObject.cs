@@ -165,8 +165,8 @@ namespace WaterSystem
             {
                 case BuoyancyType.PhysicalVoxel:
                     {
-                        xposForceTot = 0f;
-                        xnegForceTot = 0f;
+                        //xposForceTot = 0f;
+                        //xnegForceTot = 0f;
                         LocalToWorldJob.CompleteJob(_guid);
                         //Debug.Log("new pass: " + gameObject.name);
                         Physics.autoSyncTransforms = false;
@@ -233,8 +233,8 @@ namespace WaterSystem
             var force = localDampingForce + math.sqrt(k) * _localArchimedesForce * submergedAmount;
             _rb.AddForceAtPosition(force, position);
 
-            if (voxelP.x > 0f) xpos += force.x * force.x + force.y * force.y + force.z * force.z;
-            if (voxelP.x < 0f) xneg += force.x * force.x + force.y * force.y + force.z * force.z;
+            //if (voxelP.x > 0f) xpos += force.x * force.x + force.y * force.y + force.z * force.z;
+            //if (voxelP.x < 0f) xneg += force.x * force.x + force.y * force.y + force.z * force.z;
 
             //debug.Force = force; // For drawing force Gizmos
             //Debug.Log(string.Format("Position: {0:f1} -- Force: {1:f2} -- Height: {2:f2}\nVelocity: {3:f2} -- Damp: {4:f2} -- Mass: {5:f1} -- K: {6:f2}", position, force, waterHeight, velocity, localDampingForce, _rb.mass, _localArchimedesForce));

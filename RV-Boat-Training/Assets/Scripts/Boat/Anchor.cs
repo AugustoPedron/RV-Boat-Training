@@ -7,7 +7,7 @@ public class Anchor : MonoBehaviour
 {
     public Rigidbody RB;
     public bool start = false;
-    public Vector3 initialPosition = new Vector3(0f, -1f, 0f);
+    private Vector3 initialPosition = new Vector3(0f, -1.1f, 0f);
 
     private void OnEnable()
     {
@@ -15,15 +15,16 @@ public class Anchor : MonoBehaviour
         BoatEventManager.StartListening("resetAnchor", ResetAnchor);
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnCollisionEnter(Collision collision)
     {
-        if (other.gameObject.tag == "Terrain")
+        if (collision.gameObject.tag == "Terrain")
         {
             BoatEventManager.TriggerEvent("anchorSet");
             start = true;
             RB.isKinematic = true;
         }
     }
+
     private void OnDisable()
     {
         BoatEventManager.StopListening("dropAnchor", DropAnchor);

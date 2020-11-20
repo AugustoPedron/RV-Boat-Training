@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 namespace BoatAttack
@@ -8,6 +9,7 @@ namespace BoatAttack
     {
         public Engine engine;
         private Action coroutineWrapper;
+        public Slider slider;
         private float steering = 0f;
         private float acceleration = 0f;
         public float steeringSpeed = 5f;
@@ -18,7 +20,9 @@ namespace BoatAttack
         public float anchorProbabilityIncrement = 0.05f;
         public bool anchorSet = false;
         public bool anchorStart = false;
-        private Vector3 anchorStartingPosition = new Vector3( 0f, -1f, 0f );
+        private float engineValue = 0f;
+        private float maxThrottle = 0f;
+        private float maxReverseThrottle = 0f;
 
         private void Awake()
         {
@@ -30,6 +34,8 @@ namespace BoatAttack
             coroutineWrapper = () => StartCoroutine(UpdateAnchorProbability());
             BoatEventManager.StartListening("emptyTank", StopEngine);
             BoatEventManager.StartListening("anchorSet", coroutineWrapper.Invoke);
+            maxThrottle = 1 / slider.maxValue;
+            maxReverseThrottle = -1 / slider.minValue;
         }
 
         private void OnDisable()
@@ -76,11 +82,11 @@ namespace BoatAttack
                     steering = ResidualTurningForce(steering, decelerationSpeed);
                 }
 
-                if (Input.GetKey(KeyCode.W))
+                if (engineValue > 0)
                 {
                     if (engineRunning)
                     {
-                        UpdateAcceleration(1f);
+                        UpdateAcceleration(1f, engineValue);
                     }
                     else
                     {
@@ -88,16 +94,16 @@ namespace BoatAttack
                     }
                 }
 
-                if (acceleration > 0f && !Input.GetKey(KeyCode.W))
+                if (acceleration > 0f && engineValue == 0)
                 {
                     acceleration = ResidualForwardForce(acceleration, decelerationSpeed);
                 }
 
-                if (Input.GetKey(KeyCode.S))
+                if (engineValue < 0)
                 {
                     if (engineRunning)
                     {
-                        UpdateAcceleration(-1f);
+                        UpdateAcceleration(-1f, -engineValue);
                     }
                     else
                     {
@@ -105,7 +111,7 @@ namespace BoatAttack
                     }
                 }
 
-                if (acceleration < 0f && !Input.GetKey(KeyCode.S))
+                if (acceleration < 0f && engineValue == 0)
                 {
                     acceleration = ResidualForwardForce(acceleration, -decelerationSpeed);
                 }
@@ -114,6 +120,7 @@ namespace BoatAttack
                 {
                     GameObject anchor = GameObject.FindGameObjectWithTag("Anchor");
                     anchor.transform.parent = null;
+                    anchor.GetComponent<Collider>().enabled = true;
                     BoatEventManager.TriggerEvent("dropAnchor");
                 }
             }
@@ -125,6 +132,7 @@ namespace BoatAttack
                     anchorProbability = 2f;
                     GameObject anchor = GameObject.FindGameObjectWithTag("Anchor");
                     anchor.transform.parent = transform;
+                    anchor.GetComponent<Collider>().enabled = false;
                     BoatEventManager.TriggerEvent("resetAnchor");
                 }
 
@@ -140,21 +148,17 @@ namespace BoatAttack
             }
         }
 
-        private void LateUpdate()
-        {
-        }
-
         private void StopEngine()
         {
             BoatEventManager.StopListening("emptyTank", StopEngine);
             engineRunning = false;
         }
 
-        private void UpdateAcceleration(float forward)
+        private void UpdateAcceleration(float forward, float engineValue)
         {
-            acceleration += accelerationSpeed * Input.mouseScrollDelta.y * Time.fixedDeltaTime * forward;
-            acceleration = Mathf.Clamp(acceleration, -1f, 1f);
-            engine.Accelerate(acceleration);
+            /*acceleration += accelerationSpeed * Time.fixedDeltaTime * forward;
+            acceleration = Mathf.Clamp(acceleration, -1f, 1f);*/
+            engine.Accelerate(engineValue);
         }
 
         private float ResidualForwardForce(float acceleration, float decelerationSpeed)
@@ -189,7 +193,7 @@ namespace BoatAttack
             bool run = true;
             while (run)
             {
-                if (acceleration > 0f)
+                if (engineValue != 0)
                 {
                     anchorProbability += anchorProbabilityIncrement * Time.deltaTime;
                     if(UnityEngine.Random.Range(0f, 100f) <= anchorProbability)
@@ -199,6 +203,19 @@ namespace BoatAttack
                     }
                 }
                 yield return new WaitForSecondsRealtime(0.4f);
+            }
+        }
+
+        public void UpdateEngingeValue(float value)
+        {
+            if (value != 0)
+            {
+                if (value <= maxThrottle) engineValue = value * maxThrottle;
+                else engineValue = value * maxReverseThrottle;
+            }
+            else
+            {
+                engineValue = value;
             }
         }
     }

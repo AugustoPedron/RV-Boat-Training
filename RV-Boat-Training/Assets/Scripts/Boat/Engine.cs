@@ -44,7 +44,10 @@ namespace BoatAttack
             _point = new NativeArray<float3>(1, Allocator.Persistent);
         }
 
-        private void OnEnable() { fuel = fuel <= tankCapacity ? fuel : tankCapacity; }
+        private void OnEnable()
+        {
+            fuel = fuel <= tankCapacity ? fuel : tankCapacity;
+        }
 
         private void FixedUpdate()
         {
@@ -87,7 +90,7 @@ namespace BoatAttack
                 forward.y = 0f;
                 forward.Normalize();
                 RB.AddForce(horsePower * modifier * forward, ForceMode.Acceleration); // add force forward based on input and horsepower
-                RB.AddRelativeTorque(-Vector3.right * modifier * 0.01f, ForceMode.Acceleration);
+                RB.AddTorque(-Vector3.right * modifier * 0.03f, ForceMode.Acceleration);
                 updateFuel = true;
             }
         }
