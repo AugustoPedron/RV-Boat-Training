@@ -7,27 +7,42 @@ public class CameraControls : MonoBehaviour
 {
     public Canvas canvas;
     public float mouseSpeed = 2f;
-    private GraphicRaycaster raycaster;
-    private PointerEventData pointerEventData;
-    private EventSystem eventSystem;
     private float pitch = 0f;
     private float yaw = 0f;
-
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        raycaster = canvas.GetComponent<GraphicRaycaster>();
-        eventSystem = canvas.GetComponent<EventSystem>();
-    }
+    private bool usingThrottle = false;
 
     // Update is called once per frame
     void Update()
     {
-        pitch -= Input.GetAxis("Mouse Y") * mouseSpeed;
-        pitch = Mathf.Clamp(pitch, -90f, 90f);
-        yaw += Input.GetAxis("Mouse X") * mouseSpeed;
-        yaw = yaw % 360f;
-        transform.localEulerAngles = new Vector3(pitch, yaw, 0f);
+        //----------- Movimento della camera con il mouse -----------------
+        if (!usingThrottle)
+        {
+            pitch -= Input.GetAxis("Mouse Y") * mouseSpeed;
+            pitch = Mathf.Clamp(pitch, -90f, 90f);
+            yaw += Input.GetAxis("Mouse X") * mouseSpeed;
+            yaw = yaw % 360f;
+            transform.localEulerAngles = new Vector3(pitch, yaw, 0f);
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        //---------- Blocco della camera quando si vuole interagire con la leva del motore ---------------
+        if (Input.GetKey(KeyCode.Mouse0))
+        {
+            int layerMask = 1 << 8;
+            Ray ray = new Ray(transform.position, transform.TransformDirection(Vector3.forward));
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit, Mathf.Infinity, layerMask))
+            {
+                usingThrottle = true;
+                //TO DO: finire la gestione una volta creato il modello della barca
+            }
+        }
+
+        if (Input.GetKeyUp(KeyCode.Mouse0))
+        {
+            usingThrottle = false;
+        }
     }
 }
