@@ -34,6 +34,7 @@ namespace BoatAttack
             coroutineWrapper = () => StartCoroutine(UpdateAnchorProbability());
             BoatEventManager.StartListening("emptyTank", StopEngine);
             BoatEventManager.StartListening("anchorSet", coroutineWrapper.Invoke);
+            BoatEventManager.StartListening("updateThrottle", UpdateEngingeValue);
             maxThrottle = 1 / slider.maxValue;
             maxReverseThrottle = -1 / slider.minValue;
         }
@@ -42,6 +43,7 @@ namespace BoatAttack
         {
             BoatEventManager.StopListening("emptyTank", StopEngine);
             BoatEventManager.StopListening("anchorSet", coroutineWrapper.Invoke);
+            BoatEventManager.StopListening("updateThrottle", UpdateEngingeValue);
         }
 
         private void FixedUpdate()
@@ -86,7 +88,7 @@ namespace BoatAttack
                 {
                     if (engineRunning)
                     {
-                        UpdateAcceleration(1f, engineValue);
+                        engine.Accelerate(engineValue);
                     }
                     else
                     {
@@ -103,7 +105,7 @@ namespace BoatAttack
                 {
                     if (engineRunning)
                     {
-                        UpdateAcceleration(-1f, -engineValue);
+                        engine.Accelerate(engineValue);
                     }
                     else
                     {
@@ -154,13 +156,6 @@ namespace BoatAttack
             engineRunning = false;
         }
 
-        private void UpdateAcceleration(float forward, float engineValue)
-        {
-            /*acceleration += accelerationSpeed * Time.fixedDeltaTime * forward;
-            acceleration = Mathf.Clamp(acceleration, -1f, 1f);*/
-            engine.Accelerate(engineValue);
-        }
-
         private float ResidualForwardForce(float acceleration, float decelerationSpeed)
         {
             if (acceleration >= decelerationSpeed * Time.fixedDeltaTime)
@@ -208,15 +203,7 @@ namespace BoatAttack
 
         public void UpdateEngingeValue(float value)
         {
-            if (value != 0)
-            {
-                if (value <= maxThrottle) engineValue = value * maxThrottle;
-                else engineValue = value * maxReverseThrottle;
-            }
-            else
-            {
-                engineValue = value;
-            }
+            engineValue = value;
         }
     }
 }

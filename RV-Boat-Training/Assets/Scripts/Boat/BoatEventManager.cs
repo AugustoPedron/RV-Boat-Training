@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using System;
 
 public class BoatEventManager : MonoBehaviour
 {
-
-    private Dictionary<string, UnityEvent> eventDictionary;
+    private Dictionary<string, Action> eventDictionary;
+    private Dictionary<string, Action<float>> eventDictionaryFloat;
 
     private static BoatEventManager eventManager;
 
@@ -36,41 +37,78 @@ public class BoatEventManager : MonoBehaviour
     {
         if (eventDictionary == null)
         {
-            eventDictionary = new Dictionary<string, UnityEvent>();
+            eventDictionary = new Dictionary<string, Action>();
+            eventDictionaryFloat = new Dictionary<string, Action<float>>();
         }
     }
 
-    public static void StartListening(string eventName, UnityAction listener)
+    public static void StartListening(string eventName, Action listener)
     {
-        UnityEvent thisEvent = null;
+        Action thisEvent;
         if (instance.eventDictionary.TryGetValue(eventName, out thisEvent))
         {
-            thisEvent.AddListener(listener);
+            thisEvent += listener;
+            instance.eventDictionary[eventName] = thisEvent;
         }
         else
         {
-            thisEvent = new UnityEvent();
-            thisEvent.AddListener(listener);
+            thisEvent += listener;
             instance.eventDictionary.Add(eventName, thisEvent);
         }
     }
 
-    public static void StopListening(string eventName, UnityAction listener)
+    public static void StopListening(string eventName, Action listener)
     {
         if (eventManager == null) return;
-        UnityEvent thisEvent = null;
+        Action thisEvent = null;
         if (instance.eventDictionary.TryGetValue(eventName, out thisEvent))
         {
-            thisEvent.RemoveListener(listener);
+            thisEvent -= listener;
+            instance.eventDictionary[eventName] = thisEvent;
         }
     }
 
     public static void TriggerEvent(string eventName)
     {
-        UnityEvent thisEvent = null;
+        Action thisEvent = null;
         if (instance.eventDictionary.TryGetValue(eventName, out thisEvent))
         {
             thisEvent.Invoke();
+        }
+    }
+
+    public static void StartListening(string eventName, Action<float> listener)
+    {
+        Action<float> thisEvent;
+        if (instance.eventDictionaryFloat.TryGetValue(eventName, out thisEvent))
+        {
+            thisEvent += listener;
+            instance.eventDictionaryFloat[eventName] = thisEvent;
+        }
+        else
+        {
+            thisEvent += listener;
+            instance.eventDictionaryFloat[eventName] = thisEvent;
+        }
+    }
+
+    public static void StopListening(string eventName, Action<float> listener)
+    {
+        if (eventManager == null) return;
+        Action<float> thisEvent = null;
+        if (instance.eventDictionaryFloat.TryGetValue(eventName, out thisEvent))
+        {
+            thisEvent -= listener;
+            instance.eventDictionaryFloat[eventName] = thisEvent;
+        }
+    }
+
+    public static void TriggerEvent(string eventName, float param)
+    {
+        Action<float> thisEvent = null;
+        if (instance.eventDictionaryFloat.TryGetValue(eventName, out thisEvent))
+        {
+            thisEvent.Invoke(param);
         }
     }
 }

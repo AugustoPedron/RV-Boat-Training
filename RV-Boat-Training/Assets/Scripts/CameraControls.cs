@@ -10,6 +10,12 @@ public class CameraControls : MonoBehaviour
     private float pitch = 0f;
     private float yaw = 0f;
     private bool usingThrottle = false;
+    private float rotationThreshold = 0f;
+
+    private void OnEnable()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+    }
 
     // Update is called once per frame
     void Update()
@@ -31,18 +37,29 @@ public class CameraControls : MonoBehaviour
         if (Input.GetKey(KeyCode.Mouse0))
         {
             int layerMask = 1 << 8;
-            Ray ray = new Ray(transform.position, transform.TransformDirection(Vector3.forward));
+            Ray ray = new Ray(transform.position, transform.forward);
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit, Mathf.Infinity, layerMask))
             {
+                //Debug.Log("hit");
                 usingThrottle = true;
+                BoatEventManager.TriggerEvent("enable");
                 //TO DO: finire la gestione una volta creato il modello della barca
             }
         }
 
-        if (Input.GetKeyUp(KeyCode.Mouse0))
+        //Debug.DrawRay(transform.position, transform.forward * 30, Color.red);
+
+        if (usingThrottle && !Input.GetKey(KeyCode.Mouse0))
         {
+            //Debug.Log("release");
             usingThrottle = false;
+            BoatEventManager.TriggerEvent("disable");
         }
+    }
+
+    private void LockUnlockCamera()
+    {
+        usingThrottle = !usingThrottle;
     }
 }
