@@ -38,11 +38,15 @@ namespace WaterSystem
         private const float Dampner = 0.005f;
         private const float WaterDensity = 1000;
         private const float rhoWater = 513f;
+        private const float rhoAir = 0.6275f;
 
         private float _baseDrag; // reference to original drag
         private float _baseAngularDrag; // reference to original angular drag
         private int _guid; // GUID for the height system
         private float3 _localArchimedesForce;
+
+        private Vector3 totalWaterDrag;
+        private Vector3 totalAirDrag;
 
         private Vector3 transformPosition;
         private List<Voxel> externalVoxels = new List<Voxel>();
@@ -177,24 +181,25 @@ namespace WaterSystem
             transformPosition = transform.position;
             var submergedAmount = 0f;
             float Cf = ResistanceCoefficient(rhoWater, _rb.velocity.magnitude, _rb.transform.localScale.z);
+            totalWaterDrag = new Vector3();
+            totalAirDrag = new Vector3();
 
             switch (_buoyancyType)
             {
                 case BuoyancyType.PhysicalVoxel:
                     {
-                        //xposForceTot = 0f;
-                        //xnegForceTot = 0f;
                         LocalToWorldJob.CompleteJob(_guid);
                         //Debug.Log("new pass: " + gameObject.name);
                         Physics.autoSyncTransforms = false;
 
                         for (var i = 0; i < _voxels.Length; i++)
-                        {
                             submergedAmount += SubmergedAmountOfObject(_samplePoints[i], Heights[i].y, ref ks[i]);
-                            AddFrictionForces(Cf);
-                        }
+                        
                         for (var i = 0; i < _voxels.Length; i++)
                             BuoyancyForce(_samplePoints[i], _velocity[i], Heights[i].y + waterLevelOffset, submergedAmount, ks[i], ref _debugInfo[i], _voxels[i], ref xposForceTot, ref xnegForceTot);
+
+                        //AddFrictionForces(Cf);
+
                         Physics.SyncTransforms();
                         Physics.autoSyncTransforms = true;
                         UpdateDrag(submergedAmount);
@@ -253,11 +258,6 @@ namespace WaterSystem
             var force = localDampingForce + math.sqrt(k) * _localArchimedesForce * submergedAmount;
             _rb.AddForceAtPosition(force, position);
 
-            //if (voxelP.x > 0f) xpos += force.x * force.x + force.y * force.y + force.z * force.z;
-            //if (voxelP.x < 0f) xneg += force.x * force.x + force.y * force.y + force.z * force.z;
-
-            //debug.Force = force; // For drawing force Gizmos
-            //Debug.Log(string.Format("Position: {0:f1} -- Force: {1:f2} -- Height: {2:f2}\nVelocity: {3:f2} -- Damp: {4:f2} -- Mass: {5:f1} -- K: {6:f2}", position, force, waterHeight, velocity, localDampingForce, _rb.mass, _localArchimedesForce));
         }
 
         private void UpdateDrag(float submergedAmount)
@@ -271,11 +271,21 @@ namespace WaterSystem
         {
             for (int j = 0; j < externalVoxels.Count; j++)
             {
+                //Check if the face is above or under the water level
                 if (externalVoxels[j].position.y - voxelResolution < Heights[externalVoxels[j].index].y)
                 {
+                    //Add under water forces
                     for (int i = 0; i < externalVoxels[j].faces.Count; i++)
                     {
                         ViscousWaterResistanceForce(externalVoxels[j].faces[i], Cf);
+                    }
+                }
+                else
+                {
+                    //Add above water forces
+                    for (int i = 0; i < externalVoxels[j].faces.Count; i++)
+                    {
+                        //AirResistanceForce(rhoAir, externalVoxels[j].faces[i], _rb.drag);
                     }
                 }
             }
@@ -309,14 +319,18 @@ namespace WaterSystem
 
             //The speed of the triangle as if it was in the tangent's direction
             //So we end up with the same speed as in the center of the triangle but in the direction of the flow
-            Vector3 v_f_vec = A.magnitude * tangentialDirection;
+            Vector3 v_f_vec = face.velocityMagnitude * tangentialDirection;
 
             //The final resistance force
             Vector3 viscousWaterResistanceForce = voxelAreaRho * v_f_vec.magnitude * v_f_vec * Cf;
 
             viscousWaterResistanceForce = CheckForceIsValid(viscousWaterResistanceForce, "Viscous Water Resistance");
 
-            _rb.AddForceAtPosition(viscousWaterResistanceForce, face.position);
+            totalWaterDrag += viscousWaterResistanceForce;
+
+            Vector3 convertedPosition = transform.localToWorldMatrix * face.position;
+
+            _rb.AddForceAtPosition(viscousWaterResistanceForce, convertedPosition);
         }
 
         //The Coefficient of frictional resistance - belongs to Viscous Water Resistance but is same for all so calculate once
@@ -342,31 +356,33 @@ namespace WaterSystem
             return Cf;
         }
 
-        ////Force 3 - Air resistance on the part of the ship above the water (typically 4 to 8 percent of total resistance)
-        //public Vector3 AirResistanceForce(float rho, Vector3 velocity, float C_air)
-        //{
-        //    // R_air = 0.5 * rho * v^2 * A_p * C_air
-        //    // rho - air density
-        //    // v - speed of ship
-        //    // A_p - projected transverse profile area of ship
-        //    // C_r - coefficient of air resistance (drag coefficient)
+        //Force 3 - Air resistance on the part of the ship above the water (typically 4 to 8 percent of total resistance)
+        public void AirResistanceForce(float rho, FaceData face, float C_air)
+        {
+            // R_air = 0.5 * rho * v^2 * A_p * C_air
+            // rho - air density
+            // v - speed of ship
+            // A_p - projected transverse profile area of ship
+            // C_r - coefficient of air resistance (drag coefficient)
 
-        //    //Only add air resistance if normal is pointing in the same direction as the velocity
-        //    if (triangleData.cosTheta < 0f)
-        //    {
-        //        return Vector3.zero;
-        //    }
+            //Only add air resistance if normal is pointing in the same direction as the velocity
+            if (face.cosTheta < 0f)
+            {
+                return;
+            }
 
-        //    //Find air resistance force
-        //    Vector3 airResistanceForce = 0.5f * rho * velocity.magnitude * velocity * voxelResolution * voxelResolution * C_air;
+            //Find air resistance force
+            Vector3 airResistanceForce = voxelAreaRho * face.velocityMagnitude * face.velocity * C_air;
 
-        //    //Acting in the opposite side of the velocity
-        //    airResistanceForce *= -1f;
+            //Acting in the opposite side of the velocity
+            airResistanceForce *= -1f;
 
-        //    airResistanceForce = CheckForceIsValid(airResistanceForce, "Air resistance");
+            airResistanceForce = CheckForceIsValid(airResistanceForce, "Air resistance");
 
-        //    return airResistanceForce;
-        //}
+            totalAirDrag += airResistanceForce;
+
+            _rb.AddForceAtPosition(airResistanceForce, transform.TransformPoint(face.position));
+        }
 
         //Check that a force is not NaN
         private Vector3 CheckForceIsValid(Vector3 force, string forceName)
@@ -390,7 +406,7 @@ namespace WaterSystem
             {
                 for (int j = 0; j < externalVoxels[i].faces.Count; j++)
                 {
-                    externalVoxels[i].faces[j].UpdateFaceVelocity(transform.TransformPoint(externalVoxels[i].faces[j].position));
+                    externalVoxels[i].faces[j].UpdateFaceVelocity(_rb.GetPointVelocity(transform.TransformPoint(externalVoxels[i].faces[j].position)));
                 }
             }
         }
@@ -493,8 +509,6 @@ namespace WaterSystem
 
         private void SetupFaces()
         {
-            int count = 0;
-
             for (int i = 0; i < externalVoxels.Count; i++)
             {
                 FaceFlags flags = externalVoxels[i].flag;
@@ -506,48 +520,41 @@ namespace WaterSystem
                 {
                     position = new Vector3(_voxelBounds.extents.x, externalVoxels[i].position.y + halfVoxelResolution, externalVoxels[i].position.z + halfVoxelResolution);
                     normal = transform.right;
-                    externalVoxels[i].faces.Add(new FaceData(normal, position, voxelResolution, _rb));
-                    count++;
+                    externalVoxels[i].faces.Add(new FaceData(normal, position, voxelResolution));
                 }
                 else if ((flags & FaceFlags.left) != 0)
                 {
                     position = new Vector3(-_voxelBounds.extents.x, externalVoxels[i].position.y + halfVoxelResolution, externalVoxels[i].position.z + halfVoxelResolution);
                     normal = -transform.right;
-                    externalVoxels[i].faces.Add(new FaceData(normal, position, voxelResolution, _rb));
-                    count++;
+                    externalVoxels[i].faces.Add(new FaceData(normal, position, voxelResolution));
                 }
 
                 if ((flags & FaceFlags.top) != 0)
                 {
                     position = new Vector3(externalVoxels[i].position.x + halfVoxelResolution, _voxelBounds.extents.y, externalVoxels[i].position.z + halfVoxelResolution);
                     normal = transform.up;
-                    externalVoxels[i].faces.Add(new FaceData(normal, position, voxelResolution, _rb));
-                    count++;
+                    externalVoxels[i].faces.Add(new FaceData(normal, position, voxelResolution));
                 }
                 else if ((flags & FaceFlags.bottom) != 0)
                 {
                     position = new Vector3(externalVoxels[i].position.x + halfVoxelResolution, -_voxelBounds.extents.y, externalVoxels[i].position.z + halfVoxelResolution);
                     normal = -transform.up;
-                    externalVoxels[i].faces.Add(new FaceData(normal, position, voxelResolution, _rb));
-                    count++;
+                    externalVoxels[i].faces.Add(new FaceData(normal, position, voxelResolution));
                 }
 
                 if ((flags & FaceFlags.forward) != 0)
                 {
                     position = new Vector3(externalVoxels[i].position.x + halfVoxelResolution, externalVoxels[i].position.y + halfVoxelResolution, _voxelBounds.extents.z);
                     normal = transform.forward;
-                    externalVoxels[i].faces.Add(new FaceData(normal, position, voxelResolution, _rb));
-                    count++;
+                    externalVoxels[i].faces.Add(new FaceData(normal, position, voxelResolution));
                 }
                 else if ((flags & FaceFlags.backward) != 0)
                 {
                     position = new Vector3(externalVoxels[i].position.x + halfVoxelResolution, externalVoxels[i].position.y + halfVoxelResolution, -_voxelBounds.extents.z);
                     normal = -transform.forward;
-                    externalVoxels[i].faces.Add(new FaceData(normal, position, voxelResolution, _rb));
-                    count++;
+                    externalVoxels[i].faces.Add(new FaceData(normal, position, voxelResolution));
                 }
             }
-            Debug.Log("num faces: " + count);
         }
 
         private bool CheckInsideCollider(Vector3 position)
@@ -675,7 +682,19 @@ namespace WaterSystem
             PhysicalVoxel
         }
 
-        public struct Voxel
+        [Flags]
+        public enum FaceFlags
+        {
+            init = 0,
+            right = 1,
+            left = 2,
+            top = 4,
+            bottom = 8,
+            forward = 16,
+            backward = 32
+        }
+
+        public class Voxel
         {
             public int index;
             public Vector3 position;
@@ -691,32 +710,10 @@ namespace WaterSystem
             }
         }
 
-        [Flags]
-        public enum FaceFlags
+        public class FaceData
         {
-            init = 0,
-            right = 1,
-            left = 2,
-            top = 4,
-            bottom = 8,
-            forward = 16,
-            backward = 32
-        }
-
-        public struct FaceData
-        {
-            //The corners of this triangle in global coordinates
-            //public Vector3 p1;
-            //public Vector3 p2;
-            //public Vector3 p3;
-
-            Rigidbody RB;
-
             //The center of the triangle
             public Vector3 position;
-
-            ////The distance to the surface from the center of the triangle
-            //public float distanceToSurface;
 
             //The normal to the triangle
             public Vector3 normal;
@@ -726,38 +723,32 @@ namespace WaterSystem
             //The area of the triangle
             public float area;
 
-            ////The velocity normalized
-            //public Vector3 velocityDir;
+            //The velocity normalized
+            public Vector3 velocityDir;
 
             public Vector3 velocity;
+
+            public float velocityMagnitude;
 
             //The angle between the normal and the velocity
             //Negative if pointing in the opposite direction
             //Positive if pointing in the same direction
             public float cosTheta;
 
-            public FaceData(Vector3 normal, Vector3 position, float voxelResolution, Rigidbody rb)
+            public FaceData(Vector3 normal, Vector3 position, float voxelResolution)
             {
                 this.position = position;
-
-                RB = rb;
-
-                //this.p1 = p1;
-                //this.p2 = p2;
-                //this.p3 = p3;
-
-                ////Center of the triangle
-                //this.center = (p1 + p2 + p3) / 3f;
-
-                ////Distance to the surface from the center of the triangle
-                //this.distanceToSurface = Mathf.Abs(WaterController.current.DistanceToWater(this.center, timeSinceStart));
 
                 //Normal to the triangle
                 this.normal = normal.normalized;
 
                 normalMagnitude = normal.magnitude;
 
-                this.velocity = new Vector3();
+                this.velocity = new Vector3(0f, 0f, 0f);
+
+                this.velocityDir = new Vector3(0f, 0f, 0f);
+
+                velocityMagnitude = 0f;
 
                 //Area of the triangle
                 this.area = voxelResolution * voxelResolution;
@@ -768,14 +759,12 @@ namespace WaterSystem
                 this.cosTheta = 0;
             }
 
-            public void updateTheta(Vector3 velocity)
+            public void UpdateFaceVelocity(Vector3 velocity)
             {
-                this.cosTheta = Vector3.Dot(velocity.normalized, this.normal);
-            }
-
-            public void UpdateFaceVelocity(Vector3 pos)
-            {
-                velocity = RB.GetPointVelocity(pos);
+                this.velocity = velocity;
+                velocityMagnitude = velocity.magnitude;
+                velocityDir = velocity.normalized;
+                cosTheta = Vector3.Dot(velocityDir, normal);
             }
         }
     }
