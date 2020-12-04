@@ -48,7 +48,6 @@ namespace BoatAttack
                     engineValue = 0f;
                     boat.UpdateEngingeValue(engineValue);
                 }
-                Debug.Log("throttlePosition: " + throttlePosition);
             }
 
             transform.position = Quaternion.Euler(boatTransform.eulerAngles) * offset + boatTransform.position;
