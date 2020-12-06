@@ -9,12 +9,16 @@ namespace BoatAttack
     {
         public Boat boat;
         public Transform boatTransform;
-        public int steps = 7;
+        public float startingPosition = -20f;
+        public float maxThrottleRotation = 40f;
+        public float minThrottleRotation = -55f;
+        public float throttleDeadZone = 2.5f;  //zona nella quale l'acceleratore seppur ruotato non attiva il motore
         public float mouseSpeed = 2f;
-        public float throttleDeadZone = 2.5f;
         private Vector3 offset = new Vector3(1.5f, 3.4f, -17f);
         private float rotation = -20f;
         private float throttlePosition = 0f;
+        private float maxThrottlePosition = 0;
+        private float minThrottlePosition = 0;
         private bool enableControl = false;
         private float engineValue = 0f;
 
@@ -23,6 +27,8 @@ namespace BoatAttack
         {
             BoatEventManager.StartListening("enable", Enable);
             BoatEventManager.StartListening("disable", Disable);
+            maxThrottlePosition = maxThrottleRotation - startingPosition - throttleDeadZone;
+            minThrottlePosition = -(minThrottleRotation - startingPosition - throttleDeadZone);
         }
 
         private void OnDisable()
@@ -36,11 +42,11 @@ namespace BoatAttack
             if (enableControl)
             {
                 rotation += Input.GetAxis("Mouse Y") * mouseSpeed;
-                rotation = Mathf.Clamp(rotation, -55f, 40f);
+                rotation = Mathf.Clamp(rotation, minThrottleRotation, maxThrottleRotation);
                 throttlePosition = rotation + 20f;
                 if (throttlePosition > throttleDeadZone || throttlePosition < -throttleDeadZone)
                 {
-                    engineValue = throttlePosition > 0 ? throttlePosition / (60 - throttleDeadZone) : throttlePosition / (35 - throttleDeadZone);
+                    engineValue = throttlePosition > 0 ? (throttlePosition - throttleDeadZone) / maxThrottlePosition : (throttlePosition - throttleDeadZone) / minThrottlePosition;
                     boat.UpdateEngingeValue(engineValue);
                 }
                 else

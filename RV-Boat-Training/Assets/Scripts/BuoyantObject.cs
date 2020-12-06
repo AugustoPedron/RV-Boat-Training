@@ -97,7 +97,7 @@ namespace WaterSystem
                     SetupVoxels();
                     SetupData();
                     SetupPhysical();
-                    SetupFaces();
+                    //SetupFaces();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -166,7 +166,7 @@ namespace WaterSystem
                 case BuoyancyType.PhysicalVoxel:
                     LocalToWorldJob.CompleteJob(_guid);
                     GetVelocityPoints();
-                    UpdateFacesVelocity();
+                    //UpdateFacesVelocity();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -180,7 +180,7 @@ namespace WaterSystem
         {
             transformPosition = transform.position;
             var submergedAmount = 0f;
-            float Cf = ResistanceCoefficient(rhoWater, _rb.velocity.magnitude, _rb.transform.localScale.z);
+            //float Cf = ResistanceCoefficient(rhoWater, _rb.velocity.magnitude, _rb.transform.localScale.z);
             totalWaterDrag = new Vector3();
             totalAirDrag = new Vector3();
 
@@ -267,149 +267,149 @@ namespace WaterSystem
             _rb.angularDrag = _baseAngularDrag + PercentSubmerged * 0.5f;
         }
 
-        private void AddFrictionForces(float Cf)
-        {
-            for (int j = 0; j < externalVoxels.Count; j++)
-            {
-                //Check if the face is above or under the water level
-                if (externalVoxels[j].position.y - voxelResolution < Heights[externalVoxels[j].index].y)
-                {
-                    //Add under water forces
-                    for (int i = 0; i < externalVoxels[j].faces.Count; i++)
-                    {
-                        ViscousWaterResistanceForce(externalVoxels[j].faces[i], Cf);
-                    }
-                }
-                else
-                {
-                    //Add above water forces
-                    for (int i = 0; i < externalVoxels[j].faces.Count; i++)
-                    {
-                        //AirResistanceForce(rhoAir, externalVoxels[j].faces[i], _rb.drag);
-                    }
-                }
-            }
-        }
+        //private void AddFrictionForces(float Cf)
+        //{
+        //    for (int j = 0; j < externalVoxels.Count; j++)
+        //    {
+        //        //Check if the face is above or under the water level
+        //        if (externalVoxels[j].position.y - voxelResolution < Heights[externalVoxels[j].index].y)
+        //        {
+        //            //Add under water forces
+        //            for (int i = 0; i < externalVoxels[j].faces.Count; i++)
+        //            {
+        //                ViscousWaterResistanceForce(externalVoxels[j].faces[i], Cf);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            //Add above water forces
+        //            for (int i = 0; i < externalVoxels[j].faces.Count; i++)
+        //            {
+        //                //AirResistanceForce(rhoAir, externalVoxels[j].faces[i], _rb.drag);
+        //            }
+        //        }
+        //    }
+        //}
 
         //Force 1 - Viscous Water Resistance (Frictional Drag)
-        public void ViscousWaterResistanceForce(FaceData face, float Cf)
-        {
-            //Viscous resistance occurs when water sticks to the boat's surface and the boat has to drag that water with it
+        //public void ViscousWaterResistanceForce(FaceData face, float Cf)
+        //{
+        //    //Viscous resistance occurs when water sticks to the boat's surface and the boat has to drag that water with it
 
-            // F = 0.5 * rho * v^2 * S * Cf
-            // rho - density of the medium you have
-            // v - speed
-            // S - surface area
-            // Cf - Coefficient of frictional resistance
+        //    // F = 0.5 * rho * v^2 * S * Cf
+        //    // rho - density of the medium you have
+        //    // v - speed
+        //    // S - surface area
+        //    // Cf - Coefficient of frictional resistance
 
-            //We need the tangential velocity 
-            //Projection of the velocity on the plane with the normal normalvec
-            //http://www.euclideanspace.com/maths/geometry/elements/plane/lineOnPlane/
-            Vector3 B = face.normal;
-            Vector3 A = face.velocity;
+        //    //We need the tangential velocity 
+        //    //Projection of the velocity on the plane with the normal normalvec
+        //    //http://www.euclideanspace.com/maths/geometry/elements/plane/lineOnPlane/
+        //    Vector3 B = face.normal;
+        //    Vector3 A = face.velocity;
 
-            Vector3 velocityTangent = Vector3.Cross(B, (Vector3.Cross(A, B) / face.normalMagnitude)) / face.normalMagnitude;
+        //    Vector3 velocityTangent = Vector3.Cross(B, (Vector3.Cross(A, B) / face.normalMagnitude)) / face.normalMagnitude;
 
-            //The direction of the tangential velocity (-1 to get the flow which is in the opposite direction)
-            Vector3 tangentialDirection = velocityTangent.normalized * -1f;
+        //    //The direction of the tangential velocity (-1 to get the flow which is in the opposite direction)
+        //    Vector3 tangentialDirection = velocityTangent.normalized * -1f;
 
-            //Debug.DrawRay(triangleCenter, tangentialDirection * 3f, Color.black);
-            //Debug.DrawRay(triangleCenter, velocityVec.normalized * 3f, Color.blue);
-            //Debug.DrawRay(triangleCenter, normal * 3f, Color.white);
+        //    //Debug.DrawRay(triangleCenter, tangentialDirection * 3f, Color.black);
+        //    //Debug.DrawRay(triangleCenter, velocityVec.normalized * 3f, Color.blue);
+        //    //Debug.DrawRay(triangleCenter, normal * 3f, Color.white);
 
-            //The speed of the triangle as if it was in the tangent's direction
-            //So we end up with the same speed as in the center of the triangle but in the direction of the flow
-            Vector3 v_f_vec = face.velocityMagnitude * tangentialDirection;
+        //    //The speed of the triangle as if it was in the tangent's direction
+        //    //So we end up with the same speed as in the center of the triangle but in the direction of the flow
+        //    Vector3 v_f_vec = face.velocityMagnitude * tangentialDirection;
 
-            //The final resistance force
-            Vector3 viscousWaterResistanceForce = voxelAreaRho * v_f_vec.magnitude * v_f_vec * Cf;
+        //    //The final resistance force
+        //    Vector3 viscousWaterResistanceForce = voxelAreaRho * v_f_vec.magnitude * v_f_vec * Cf;
 
-            viscousWaterResistanceForce = CheckForceIsValid(viscousWaterResistanceForce, "Viscous Water Resistance");
+        //    viscousWaterResistanceForce = CheckForceIsValid(viscousWaterResistanceForce, "Viscous Water Resistance");
 
-            totalWaterDrag += viscousWaterResistanceForce;
+        //    totalWaterDrag += viscousWaterResistanceForce;
 
-            Vector3 convertedPosition = transform.localToWorldMatrix * face.position;
+        //    Vector3 convertedPosition = transform.localToWorldMatrix * face.position;
 
-            _rb.AddForceAtPosition(viscousWaterResistanceForce, convertedPosition);
-        }
+        //    _rb.AddForceAtPosition(viscousWaterResistanceForce, convertedPosition);
+        //}
 
         //The Coefficient of frictional resistance - belongs to Viscous Water Resistance but is same for all so calculate once
-        public float ResistanceCoefficient(float rho, float velocity, float length)
-        {
-            //Reynolds number
+        //public float ResistanceCoefficient(float rho, float velocity, float length)
+        //{
+        //    //Reynolds number
 
-            // Rn = (V * L) / nu
-            // V - speed of the body
-            // L - length of the sumbmerged body
-            // nu - viscosity of the fluid [m^2 / s]
+        //    // Rn = (V * L) / nu
+        //    // V - speed of the body
+        //    // L - length of the sumbmerged body
+        //    // nu - viscosity of the fluid [m^2 / s]
 
-            //Viscocity depends on the temperature, but at 20 degrees celcius:
-            float nu = 0.000001f;
-            //At 30 degrees celcius: nu = 0.0000008f; so no big difference
+        //    //Viscocity depends on the temperature, but at 20 degrees celcius:
+        //    float nu = 0.000001f;
+        //    //At 30 degrees celcius: nu = 0.0000008f; so no big difference
 
-            //Reynolds number
-            float Rn = (velocity * length) / nu;
+        //    //Reynolds number
+        //    float Rn = (velocity * length) / nu;
 
-            //The resistance coefficient
-            float Cf = 0.075f / Mathf.Pow((Mathf.Log10(Rn) - 2f), 2f);
+        //    //The resistance coefficient
+        //    float Cf = 0.075f / Mathf.Pow((Mathf.Log10(Rn) - 2f), 2f);
 
-            return Cf;
-        }
+        //    return Cf;
+        //}
 
         //Force 3 - Air resistance on the part of the ship above the water (typically 4 to 8 percent of total resistance)
-        public void AirResistanceForce(float rho, FaceData face, float C_air)
-        {
-            // R_air = 0.5 * rho * v^2 * A_p * C_air
-            // rho - air density
-            // v - speed of ship
-            // A_p - projected transverse profile area of ship
-            // C_r - coefficient of air resistance (drag coefficient)
+        //public void AirResistanceForce(float rho, FaceData face, float C_air)
+        //{
+        //    // R_air = 0.5 * rho * v^2 * A_p * C_air
+        //    // rho - air density
+        //    // v - speed of ship
+        //    // A_p - projected transverse profile area of ship
+        //    // C_r - coefficient of air resistance (drag coefficient)
 
-            //Only add air resistance if normal is pointing in the same direction as the velocity
-            if (face.cosTheta < 0f)
-            {
-                return;
-            }
+        //    //Only add air resistance if normal is pointing in the same direction as the velocity
+        //    if (face.cosTheta < 0f)
+        //    {
+        //        return;
+        //    }
 
-            //Find air resistance force
-            Vector3 airResistanceForce = voxelAreaRho * face.velocityMagnitude * face.velocity * C_air;
+        //    //Find air resistance force
+        //    Vector3 airResistanceForce = voxelAreaRho * face.velocityMagnitude * face.velocity * C_air;
 
-            //Acting in the opposite side of the velocity
-            airResistanceForce *= -1f;
+        //    //Acting in the opposite side of the velocity
+        //    airResistanceForce *= -1f;
 
-            airResistanceForce = CheckForceIsValid(airResistanceForce, "Air resistance");
+        //    airResistanceForce = CheckForceIsValid(airResistanceForce, "Air resistance");
 
-            totalAirDrag += airResistanceForce;
+        //    totalAirDrag += airResistanceForce;
 
-            _rb.AddForceAtPosition(airResistanceForce, transform.TransformPoint(face.position));
-        }
+        //    _rb.AddForceAtPosition(airResistanceForce, transform.TransformPoint(face.position));
+        //}
 
         //Check that a force is not NaN
-        private Vector3 CheckForceIsValid(Vector3 force, string forceName)
-        {
-            if (!float.IsNaN(force.x) && !float.IsNaN(force.y) && !float.IsNaN(force.z))
-            {
-                //Debug.Log(force + " force");
-                return force;
-            }
-            else
-            {
-                //Debug.Log(forceName += " force is NaN");
+        //private Vector3 CheckForceIsValid(Vector3 force, string forceName)
+        //{
+        //    if (!float.IsNaN(force.x) && !float.IsNaN(force.y) && !float.IsNaN(force.z))
+        //    {
+        //        //Debug.Log(force + " force");
+        //        return force;
+        //    }
+        //    else
+        //    {
+        //        //Debug.Log(forceName += " force is NaN");
 
-                return Vector3.zero;
-            }
-        }
+        //        return Vector3.zero;
+        //    }
+        //}
 
-        private void UpdateFacesVelocity()
-        {
-            for (int i = 0; i < externalVoxels.Count; i++)
-            {
-                for (int j = 0; j < externalVoxels[i].faces.Count; j++)
-                {
-                    externalVoxels[i].faces[j].UpdateFaceVelocity(_rb.GetPointVelocity(transform.TransformPoint(externalVoxels[i].faces[j].position)));
-                }
-            }
-        }
+        //private void UpdateFacesVelocity()
+        //{
+        //    for (int i = 0; i < externalVoxels.Count; i++)
+        //    {
+        //        for (int j = 0; j < externalVoxels[i].faces.Count; j++)
+        //        {
+        //            externalVoxels[i].faces[j].UpdateFaceVelocity(_rb.GetPointVelocity(transform.TransformPoint(externalVoxels[i].faces[j].position)));
+        //        }
+        //    }
+        //}
 
         private void GetVelocityPoints()
         {
@@ -453,21 +453,21 @@ namespace WaterSystem
 
                         var p = new Vector3(x, y, z) + _voxelBounds.center;
 
-                        var inside = false;
-                        foreach (var t1 in colliders)
-                        {
-                            if (PointIsInsideCollider(t1, p, pos))
-                            {
-                                inside = true;
-                                break;
-                            }
-                        }
-                        if (inside)
+                        //var inside = false;
+                        //foreach (var t1 in colliders)
+                        //{
+                        //    if (PointIsInsideCollider(t1, p, pos))
+                        //    {
+                        //        inside = true;
+                        //        break;
+                        //    }
+                        //}
+                        if (CheckInsideCollider(p))
                         {
                             points.Add(p);
-                            if (CheckIfVoxelIsBorder(x, y, z, ref flag))
-                                externalVoxels.Add(new Voxel(count, new Vector3(x, y, z), flag));
-                            count++;
+                            //if (CheckIfVoxelIsBorder(x, y, z, ref flag))
+                            //    externalVoxels.Add(new Voxel(count, new Vector3(x, y, z), flag));
+                            //count++;
                         }
                     }
                 }
@@ -494,68 +494,68 @@ namespace WaterSystem
             return bounds;
         }
 
-        private bool CheckIfVoxelIsBorder(float vx, float vy, float vz, ref FaceFlags flag)
-        {
-            if (Mathf.Approximately(vx, -_voxelBounds.extents.x + halfVoxelResolution)) flag = flag | FaceFlags.left;
-            if (Mathf.Approximately(vy, -_voxelBounds.extents.y + halfVoxelResolution)) flag = flag | FaceFlags.bottom;
-            if (Mathf.Approximately(vz, -_voxelBounds.extents.z + halfVoxelResolution)) flag = flag | FaceFlags.backward;
-            if (Mathf.Approximately(vx, _voxelBounds.extents.x - halfVoxelResolution)) flag = flag | FaceFlags.right;
-            if (Mathf.Approximately(vy, _voxelBounds.extents.y - halfVoxelResolution)) flag = flag | FaceFlags.top;
-            if (Mathf.Approximately(vz, _voxelBounds.extents.z - halfVoxelResolution)) flag = flag | FaceFlags.forward;
+        //private bool CheckIfVoxelIsBorder(float vx, float vy, float vz, ref FaceFlags flag)
+        //{
+        //    if (Mathf.Approximately(vx, -_voxelBounds.extents.x + halfVoxelResolution)) flag = flag | FaceFlags.left;
+        //    if (Mathf.Approximately(vy, -_voxelBounds.extents.y + halfVoxelResolution)) flag = flag | FaceFlags.bottom;
+        //    if (Mathf.Approximately(vz, -_voxelBounds.extents.z + halfVoxelResolution)) flag = flag | FaceFlags.backward;
+        //    if (Mathf.Approximately(vx, _voxelBounds.extents.x - halfVoxelResolution)) flag = flag | FaceFlags.right;
+        //    if (Mathf.Approximately(vy, _voxelBounds.extents.y - halfVoxelResolution)) flag = flag | FaceFlags.top;
+        //    if (Mathf.Approximately(vz, _voxelBounds.extents.z - halfVoxelResolution)) flag = flag | FaceFlags.forward;
 
-            if (flag != FaceFlags.init) return true;
-            return false;
-        }
+        //    if (flag != FaceFlags.init) return true;
+        //    return false;
+        //}
 
-        private void SetupFaces()
-        {
-            for (int i = 0; i < externalVoxels.Count; i++)
-            {
-                FaceFlags flags = externalVoxels[i].flag;
+        //private void SetupFaces()
+        //{
+        //    for (int i = 0; i < externalVoxels.Count; i++)
+        //    {
+        //        FaceFlags flags = externalVoxels[i].flag;
 
-                Vector3 position = new Vector3();
-                Vector3 normal = new Vector3();
+        //        Vector3 position = new Vector3();
+        //        Vector3 normal = new Vector3();
 
-                if ((flags & FaceFlags.right) != 0)
-                {
-                    position = new Vector3(_voxelBounds.extents.x, externalVoxels[i].position.y + halfVoxelResolution, externalVoxels[i].position.z + halfVoxelResolution);
-                    normal = transform.right;
-                    externalVoxels[i].faces.Add(new FaceData(normal, position, voxelResolution));
-                }
-                else if ((flags & FaceFlags.left) != 0)
-                {
-                    position = new Vector3(-_voxelBounds.extents.x, externalVoxels[i].position.y + halfVoxelResolution, externalVoxels[i].position.z + halfVoxelResolution);
-                    normal = -transform.right;
-                    externalVoxels[i].faces.Add(new FaceData(normal, position, voxelResolution));
-                }
+        //        if ((flags & FaceFlags.right) != 0)
+        //        {
+        //            position = new Vector3(_voxelBounds.extents.x, externalVoxels[i].position.y + halfVoxelResolution, externalVoxels[i].position.z + halfVoxelResolution);
+        //            normal = transform.right;
+        //            externalVoxels[i].faces.Add(new FaceData(normal, position, voxelResolution));
+        //        }
+        //        else if ((flags & FaceFlags.left) != 0)
+        //        {
+        //            position = new Vector3(-_voxelBounds.extents.x, externalVoxels[i].position.y + halfVoxelResolution, externalVoxels[i].position.z + halfVoxelResolution);
+        //            normal = -transform.right;
+        //            externalVoxels[i].faces.Add(new FaceData(normal, position, voxelResolution));
+        //        }
 
-                if ((flags & FaceFlags.top) != 0)
-                {
-                    position = new Vector3(externalVoxels[i].position.x + halfVoxelResolution, _voxelBounds.extents.y, externalVoxels[i].position.z + halfVoxelResolution);
-                    normal = transform.up;
-                    externalVoxels[i].faces.Add(new FaceData(normal, position, voxelResolution));
-                }
-                else if ((flags & FaceFlags.bottom) != 0)
-                {
-                    position = new Vector3(externalVoxels[i].position.x + halfVoxelResolution, -_voxelBounds.extents.y, externalVoxels[i].position.z + halfVoxelResolution);
-                    normal = -transform.up;
-                    externalVoxels[i].faces.Add(new FaceData(normal, position, voxelResolution));
-                }
+        //        if ((flags & FaceFlags.top) != 0)
+        //        {
+        //            position = new Vector3(externalVoxels[i].position.x + halfVoxelResolution, _voxelBounds.extents.y, externalVoxels[i].position.z + halfVoxelResolution);
+        //            normal = transform.up;
+        //            externalVoxels[i].faces.Add(new FaceData(normal, position, voxelResolution));
+        //        }
+        //        else if ((flags & FaceFlags.bottom) != 0)
+        //        {
+        //            position = new Vector3(externalVoxels[i].position.x + halfVoxelResolution, -_voxelBounds.extents.y, externalVoxels[i].position.z + halfVoxelResolution);
+        //            normal = -transform.up;
+        //            externalVoxels[i].faces.Add(new FaceData(normal, position, voxelResolution));
+        //        }
 
-                if ((flags & FaceFlags.forward) != 0)
-                {
-                    position = new Vector3(externalVoxels[i].position.x + halfVoxelResolution, externalVoxels[i].position.y + halfVoxelResolution, _voxelBounds.extents.z);
-                    normal = transform.forward;
-                    externalVoxels[i].faces.Add(new FaceData(normal, position, voxelResolution));
-                }
-                else if ((flags & FaceFlags.backward) != 0)
-                {
-                    position = new Vector3(externalVoxels[i].position.x + halfVoxelResolution, externalVoxels[i].position.y + halfVoxelResolution, -_voxelBounds.extents.z);
-                    normal = -transform.forward;
-                    externalVoxels[i].faces.Add(new FaceData(normal, position, voxelResolution));
-                }
-            }
-        }
+        //        if ((flags & FaceFlags.forward) != 0)
+        //        {
+        //            position = new Vector3(externalVoxels[i].position.x + halfVoxelResolution, externalVoxels[i].position.y + halfVoxelResolution, _voxelBounds.extents.z);
+        //            normal = transform.forward;
+        //            externalVoxels[i].faces.Add(new FaceData(normal, position, voxelResolution));
+        //        }
+        //        else if ((flags & FaceFlags.backward) != 0)
+        //        {
+        //            position = new Vector3(externalVoxels[i].position.x + halfVoxelResolution, externalVoxels[i].position.y + halfVoxelResolution, -_voxelBounds.extents.z);
+        //            normal = -transform.forward;
+        //            externalVoxels[i].faces.Add(new FaceData(normal, position, voxelResolution));
+        //        }
+        //    }
+        //}
 
         private bool CheckInsideCollider(Vector3 position)
         {
