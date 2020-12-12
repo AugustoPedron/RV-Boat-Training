@@ -265,13 +265,14 @@ GameObject:
   - component: {fileID: 8626958344963080188}
   - component: {fileID: 4811245009285072395}
   - component: {fileID: 568498684383802569}
+  - component: {fileID: 2243131921742165430}
   m_Layer: 5
   m_Name: BeginnerPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &7986738303460566454
 RectTransform:
   m_ObjectHideFlags: 0
@@ -341,7 +342,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 737412109246287536}
   m_Enabled: 1
-  m_Alpha: 1
+  m_Alpha: 0
   m_Interactable: 1
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
@@ -358,7 +359,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   duration: 0.4
-  cvnGroup: {fileID: 0}
+  cvnGroup: {fileID: 4811245009285072395}
+  uiManager: {fileID: 0}
+--- !u!114 &2243131921742165430
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 737412109246287536}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45dbeb4f617e5af43bb96a9b95c0500f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  canvasGroups:
+  - {fileID: 1598374614242405497}
+  - {fileID: 8652867968628211222}
+  - {fileID: 4327085401703001061}
+  - {fileID: 4011908437987105469}
 --- !u!1 &885501942151107348
 GameObject:
   m_ObjectHideFlags: 0
@@ -477,7 +496,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 6008838240500914038}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 568498684383802569}
+        m_MethodName: FadePrevious
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1192358380940491552
 GameObject:
   m_ObjectHideFlags: 0
@@ -1215,7 +1245,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1486785448148902499}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7553080557080090918}
+        m_MethodName: FadeNext
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 4811245009285072395}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.CanvasGroup, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1486785448266042890
 GameObject:
   m_ObjectHideFlags: 0
@@ -1628,13 +1669,15 @@ GameObject:
   - component: {fileID: 1486785448609359680}
   - component: {fileID: 1486785448609359682}
   - component: {fileID: 1486785448609359681}
+  - component: {fileID: 1598374614242405497}
+  - component: {fileID: 7553080557080090918}
   m_Layer: 5
   m_Name: WelcomePanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1486785448609359680
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1695,6 +1738,33 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!225 &1598374614242405497
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1486785448609359687}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &7553080557080090918
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1486785448609359687}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bfae687e75506214f95d25f32a5a008d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  duration: 0.4
+  cvnGroup: {fileID: 1598374614242405497}
+  uiManager: {fileID: 0}
 --- !u!1 &1740144103095968217
 GameObject:
   m_ObjectHideFlags: 0
@@ -1826,13 +1896,14 @@ GameObject:
   - component: {fileID: 2026636992161987068}
   - component: {fileID: 6966878414424512737}
   - component: {fileID: 8652867968628211222}
+  - component: {fileID: 8894808615145224480}
   m_Layer: 5
   m_Name: ThrottleDescription
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1078333591486073116
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1905,6 +1976,21 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &8894808615145224480
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1807364360292731991}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bfae687e75506214f95d25f32a5a008d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  duration: 0.4
+  cvnGroup: {fileID: 0}
+  uiManager: {fileID: 0}
 --- !u!1 &1930204808420303563
 GameObject:
   m_ObjectHideFlags: 0
@@ -2468,7 +2554,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 3579421469544212957}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 8894808615145224480}
+        m_MethodName: FadeNext
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &3575260477434170256
 GameObject:
   m_ObjectHideFlags: 0
@@ -2587,7 +2684,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 7147109971038665692}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1670318434127063073}
+        m_MethodName: FadeNext
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &3845557673884472497
 GameObject:
   m_ObjectHideFlags: 0
@@ -2732,6 +2840,7 @@ GameObject:
   - component: {fileID: 3985111396611788027}
   - component: {fileID: 5379896206707706855}
   - component: {fileID: 4715362339224716817}
+  - component: {fileID: 4011908437987105469}
   m_Layer: 5
   m_Name: ActivitiesPanel
   m_TagString: Untagged
@@ -2801,6 +2910,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!225 &4011908437987105469
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5053519694719210481}
+  m_Enabled: 1
+  m_Alpha: 0
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &5872422943741364339
 GameObject:
   m_ObjectHideFlags: 0
@@ -4102,7 +4223,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 5793419079439911128}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 568498684383802569}
+        m_MethodName: FadeNext
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 4011908437987105469}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.CanvasGroup, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &8844835344940999267
 GameObject:
   m_ObjectHideFlags: 0
@@ -4233,6 +4365,8 @@ GameObject:
   - component: {fileID: 138518637328558497}
   - component: {fileID: 7348197567321136279}
   - component: {fileID: 3058634327779047225}
+  - component: {fileID: 1670318434127063073}
+  - component: {fileID: 4327085401703001061}
   m_Layer: 5
   m_Name: HelmDescription
   m_TagString: Untagged
@@ -4297,3 +4431,30 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &1670318434127063073
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9010746576535238375}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bfae687e75506214f95d25f32a5a008d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  duration: 0.4
+  cvnGroup: {fileID: 0}
+  uiManager: {fileID: 0}
+--- !u!225 &4327085401703001061
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9010746576535238375}
+  m_Enabled: 1
+  m_Alpha: 0
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
