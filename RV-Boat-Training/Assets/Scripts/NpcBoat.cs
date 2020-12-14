@@ -5,10 +5,10 @@ using UnityEngine;
 public class NpcBoat : MonoBehaviour
 {
     public Rigidbody rb;
-    public float velocity = 1f;
     public GameObject playerboat;
+    public float steeringTorque = 5f;
+    public float horsePower = 18f;
 
-    // Start is called before the first frame update
     void Start()
     {
         playerboat = GameObject.Find("Boat");
@@ -18,14 +18,30 @@ public class NpcBoat : MonoBehaviour
     void Update()
     {
 
-        if (playerboat.transform.position.z > 1000) Avanza();
+
+        var target = playerboat.transform.position;
+        target.x =target.x + 50f;
+        target.y = target.z + 50f;
+        Vector3 targetDirection = target - transform.position;
+        targetDirection.y = 0f;
+        if (targetDirection.magnitude > 200)
+        { Avanza(targetDirection); }
+
+        else
+            Avanza(transform.forward);
+        
+
+
+
 
     }
-    public void Avanza()
+
+    public void Avanza(Vector3 follow)
     {
-var forward = rb.transform.forward;
-        forward.y = 0f;
-        forward.Normalize();
-        rb.AddForce(velocity * forward, ForceMode.Acceleration);
+      
+        follow.Normalize();
+        
+        rb.AddForce(horsePower * follow, ForceMode.Acceleration);      //Move object along its forward axis
+        
     }
 }
