@@ -22,6 +22,7 @@ namespace BoatAttack
         private float engineValue = 0f;
         private Rect position;
         private int crosshairDimension = 7;
+        public Texture2D crosshair;
 
         private void Awake()
         {
@@ -168,7 +169,7 @@ namespace BoatAttack
 
         private void OnGUI()
         {
-            GUI.DrawTexture(position, Texture2D.whiteTexture);
+            GUI.DrawTexture(position, crosshair);
         }
 
         private void StopEngine()
