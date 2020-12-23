@@ -8,21 +8,18 @@ namespace BoatAttack
     public class Boat : MonoBehaviour
     {
         public Engine engine;
-        private Action coroutineWrapper;
-        public Slider slider;
-        private float steering = 0f;
-        private float acceleration = 0f;
         public float steeringSpeed = 5f;
         public float accelerationSpeed = 5f;
         public float decelerationSpeed = 0.1f;
-        private bool engineRunning = true;
         public float anchorProbability = 2f;
         public float anchorProbabilityIncrement = 0.05f;
+
+        private Action coroutineWrapper;
+        private float steering = 0f;
+        private float acceleration = 0f;
+        private bool engineRunning = true;
         private bool anchorSet = false;
         private float engineValue = 0f;
-        private Rect position;
-        private int crosshairDimension = 7;
-        public Texture2D crosshair;
 
         private void Awake()
         {
@@ -42,11 +39,6 @@ namespace BoatAttack
             BoatEventManager.StopListening("emptyTank", StopEngine);
             BoatEventManager.StopListening("anchorSet", coroutineWrapper.Invoke);
             BoatEventManager.StopListening("updateThrottle", UpdateEngingeValue);
-        }
-
-        private void Start()
-        {
-            position = new Rect((Screen.width - crosshairDimension) / 2, (Screen.height - crosshairDimension) / 2, crosshairDimension, crosshairDimension);
         }
 
         private void Update()
@@ -165,11 +157,6 @@ namespace BoatAttack
                     ResidualForwardForce(-4f * decelerationSpeed);
                 }
             }
-        }
-
-        private void OnGUI()
-        {
-            GUI.DrawTexture(position, crosshair);
         }
 
         private void StopEngine()

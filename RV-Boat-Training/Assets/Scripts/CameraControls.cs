@@ -5,16 +5,24 @@ using System.Collections.Generic;
 
 public class CameraControls : MonoBehaviour
 {
+    public Texture2D crosshair;
     public Canvas canvas;
     public float mouseSpeed = 2f;
+
     private float pitch = 0f;
     private float yaw = 0f;
     private bool usingThrottle = false;
-    private float rotationThreshold = 0f;
+    private Rect position;
+    private int crosshairDimension = 7;
 
     private void OnEnable()
     {
         Cursor.lockState = CursorLockMode.Locked;
+    }
+
+    private void Start()
+    {
+        position = new Rect((Screen.width - crosshairDimension) / 2, (Screen.height - crosshairDimension) / 2, crosshairDimension, crosshairDimension);
     }
 
     // Update is called once per frame
@@ -56,6 +64,11 @@ public class CameraControls : MonoBehaviour
             usingThrottle = false;
             BoatEventManager.TriggerEvent("disable");
         }
+    }
+
+    private void OnGUI()
+    {
+        GUI.DrawTexture(position, crosshair);
     }
 
     private void LockUnlockCamera()
