@@ -4,8 +4,12 @@ using UnityEngine;
 
 public class BuoyBlink : MonoBehaviour
 {
-    public Material material;
+    public MeshRenderer meshRenderer;
+    public Material YellowMaterial;
+    public Material GreenMaterial;
+    private bool blink = true;
     private bool on = true;
+    private int id;
 
     private void OnEnable()
     {
@@ -14,19 +18,26 @@ public class BuoyBlink : MonoBehaviour
 
     IEnumerator Blink()
     {
-        while (true)
+        while (blink)
         {
             if (on)
             {
-                material.DisableKeyword("_EMISSION");
+                YellowMaterial.DisableKeyword("_EMISSION");
                 on = false;
             }
             else
             {
-                material.EnableKeyword("_EMISSION");
+                YellowMaterial.EnableKeyword("_EMISSION");
                 on = true;
             }
             yield return new WaitForSeconds(1f);
         }
+    }
+
+    public void ChangeColor()
+    {
+        blink = false;
+        StopCoroutine(Blink());
+        meshRenderer.material = GreenMaterial;
     }
 }

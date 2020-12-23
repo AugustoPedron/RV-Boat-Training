@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Terrain
   - Anchor
+  - YellowBlink
   layers:
   - Default
   - TransparentFX

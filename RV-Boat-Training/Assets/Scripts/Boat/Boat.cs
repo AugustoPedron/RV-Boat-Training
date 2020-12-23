@@ -20,6 +20,8 @@ namespace BoatAttack
         public float anchorProbabilityIncrement = 0.05f;
         private bool anchorSet = false;
         private float engineValue = 0f;
+        private Rect position;
+        private int crosshairDimension = 7;
 
         private void Awake()
         {
@@ -39,6 +41,11 @@ namespace BoatAttack
             BoatEventManager.StopListening("emptyTank", StopEngine);
             BoatEventManager.StopListening("anchorSet", coroutineWrapper.Invoke);
             BoatEventManager.StopListening("updateThrottle", UpdateEngingeValue);
+        }
+
+        private void Start()
+        {
+            position = new Rect((Screen.width - crosshairDimension) / 2, (Screen.height - crosshairDimension) / 2, crosshairDimension, crosshairDimension);
         }
 
         private void Update()
@@ -84,7 +91,7 @@ namespace BoatAttack
                 }
                 else
                 {
-                    if(steering < 0f) ResidualTurningForce(-decelerationSpeed);
+                    if (steering < 0f) ResidualTurningForce(-decelerationSpeed);
                 }
 
                 if (Input.GetKey(KeyCode.D))
@@ -100,7 +107,7 @@ namespace BoatAttack
                 }
                 else
                 {
-                    if(steering > 0f) ResidualTurningForce(decelerationSpeed);
+                    if (steering > 0f) ResidualTurningForce(decelerationSpeed);
                 }
 
                 if (engineValue >= 0)
@@ -157,6 +164,11 @@ namespace BoatAttack
                     ResidualForwardForce(-4f * decelerationSpeed);
                 }
             }
+        }
+
+        private void OnGUI()
+        {
+            GUI.DrawTexture(position, Texture2D.whiteTexture);
         }
 
         private void StopEngine()
@@ -216,7 +228,7 @@ namespace BoatAttack
         private void Acceleration(float accelerationSpeed)
         {
             acceleration += accelerationSpeed * Time.deltaTime;
-            if(accelerationSpeed > 0) acceleration = Mathf.Clamp(acceleration, float.MinValue, engineValue);
+            if (accelerationSpeed > 0) acceleration = Mathf.Clamp(acceleration, float.MinValue, engineValue);
             else acceleration = Mathf.Clamp(acceleration, engineValue, float.MaxValue);
         }
 
