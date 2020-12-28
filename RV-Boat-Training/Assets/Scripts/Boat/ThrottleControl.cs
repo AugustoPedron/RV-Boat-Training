@@ -14,7 +14,7 @@ namespace BoatAttack
         public float minThrottleRotation = -55f;
         public float throttleDeadZone = 2.5f;  //zona nella quale l'acceleratore seppur ruotato non attiva il motore
         public float mouseSpeed = 2f;
-        private Vector3 offset = new Vector3(1.5f, 3.4f, -17f);
+
         private float rotation = -20f;
         private float throttlePosition = 0f;
         private float maxThrottlePosition = 0;
@@ -56,8 +56,7 @@ namespace BoatAttack
                 }
             }
 
-            transform.position = Quaternion.Euler(boatTransform.eulerAngles) * offset + boatTransform.position;
-            transform.rotation = boatTransform.rotation * Quaternion.Euler(rotation, 0, 0);
+            transform.rotation = transform.rotation * Quaternion.Euler(rotation, 0, 0);
         }
 
         private void Enable()

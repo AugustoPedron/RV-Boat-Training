@@ -10,6 +10,7 @@ public class PathManager : MonoBehaviour
     public CinemachineSmoothPath path;
     public GameObject YellowBuoyPrefab;
     public Transform boatTransform;
+
     private int lastBuoy = 0;
     [SerializeField]
     private List<GameObject> YellowBuoys = new List<GameObject>();
@@ -19,6 +20,8 @@ public class PathManager : MonoBehaviour
     private List<Vector3> directions = new List<Vector3>(); //direzione tra coppie di boe
     [SerializeField]
     private List<Segment> segments = new List<Segment>(); //direzione ortogonale alla direzione tra coppie di boe, usata per calcolare se la barca ha superato la boa
+    [SerializeField]
+    private Transform arrowTransform;
 
     //disegna la direzione tra coppie di boe a la ortogonale a tale direzione per debug
     void OnDrawGizmosSelected()
@@ -37,8 +40,23 @@ public class PathManager : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        Vector3 arrowPosition = arrowTransform.position;
+        Vector3 direction = boatTransform.position - YellowBuoys[0].transform.position;
+        arrowTransform.position = new Vector3();
+        arrowTransform.rotation = Quaternion.LookRotation(direction, Vector3.up);
+        arrowTransform.position = arrowPosition;
+    }
+
     private void Update()
     {
+        if (lastBuoy < YellowBuoys.Count)
+        {
+            Vector3 direction = boatTransform.position - YellowBuoys[lastBuoy].transform.position;
+            arrowTransform.rotation = arrowTransform.rotation * Quaternion.LookRotation(direction, Vector3.up);
+        }
+
         if (lastBuoy < segments.Count && !segments[lastBuoy].isLeft(boatTransform.position))
         {
             buoyBlinks[lastBuoy].ChangeColor();
