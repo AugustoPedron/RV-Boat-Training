@@ -56,7 +56,7 @@ namespace BoatAttack
                 }
             }
 
-            transform.rotation = transform.rotation * Quaternion.Euler(rotation, 0, 0);
+            transform.rotation = boatTransform.rotation * Quaternion.Euler(rotation, 0, 0);
         }
 
         private void Enable()
