@@ -8,6 +8,7 @@ namespace BoatAttack
     public class ThrottleControl : MonoBehaviour
     {
         public Boat boat;
+        public Engine engine;
         public Transform boatTransform;
         public float startingPosition = -20f;
         public float maxThrottleRotation = 40f;
@@ -47,13 +48,13 @@ namespace BoatAttack
                 if (throttlePosition > throttleDeadZone || throttlePosition < -throttleDeadZone)
                 {
                     engineValue = throttlePosition > 0 ? (throttlePosition - throttleDeadZone) / maxThrottlePosition : (throttlePosition - throttleDeadZone) / minThrottlePosition;
-                    boat.UpdateEngingeValue(engineValue);
                 }
                 else
                 {
                     engineValue = 0f;
-                    boat.UpdateEngingeValue(engineValue);
                 }
+
+                boat.UpdateEngingeValue(engineValue);
             }
 
             transform.rotation = boatTransform.rotation * Quaternion.Euler(rotation, 0, 0);

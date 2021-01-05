@@ -6,6 +6,8 @@ using UnityEngine;
 public class Anchor : MonoBehaviour
 {
     public Rigidbody RB;
+    public AudioSource AnchorChain;
+    public AudioSource AnchorSplash;
     public bool start = false;
     private Vector3 initialPosition = new Vector3(0f, -1.1f, 0f);
 
@@ -22,6 +24,7 @@ public class Anchor : MonoBehaviour
             BoatEventManager.TriggerEvent("anchorSet");
             start = true;
             RB.isKinematic = true;
+            AnchorChain.Stop();
         }
     }
 
@@ -34,10 +37,25 @@ public class Anchor : MonoBehaviour
     private void DropAnchor()
     {
         RB.isKinematic = false;
+        AnchorSplash.Play();
+        AnchorChain.PlayDelayed(0.3f);
     }
 
     private void ResetAnchor()
     {
         transform.localPosition = initialPosition;
+        StartCoroutine(ChainSound());
+    }
+
+    private IEnumerator ChainSound()
+    {
+        while (true)
+        {
+            AnchorChain.Play();
+            yield return new WaitForSeconds(3);
+            AnchorChain.Stop();
+            BoatEventManager.TriggerEvent("anchorUnset");
+            yield break;
+        }
     }
 }

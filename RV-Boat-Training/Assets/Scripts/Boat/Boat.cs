@@ -19,7 +19,9 @@ namespace BoatAttack
         private float acceleration = 0f;
         private bool engineRunning = true;
         private bool anchorSet = false;
+        private bool anchorDropped = false;
         private float engineValue = 0f;
+        private float engineSound = 0f;
 
         private void Awake()
         {
@@ -31,83 +33,55 @@ namespace BoatAttack
             coroutineWrapper = () => StartCoroutine(UpdateAnchorProbability());
             BoatEventManager.StartListening("emptyTank", StopEngine);
             BoatEventManager.StartListening("anchorSet", coroutineWrapper.Invoke);
-            BoatEventManager.StartListening("updateThrottle", UpdateEngingeValue);
+            BoatEventManager.StartListening("anchorUnset", AnchorUnset);
         }
 
         private void OnDisable()
         {
             BoatEventManager.StopListening("emptyTank", StopEngine);
             BoatEventManager.StopListening("anchorSet", coroutineWrapper.Invoke);
-            BoatEventManager.StopListening("updateThrottle", UpdateEngingeValue);
+            BoatEventManager.StopListening("anchorUnset", AnchorUnset);
         }
 
         private void Update()
         {
-            if (engineValue >= 0)
-            {
-                if (engineValue - acceleration > 0)
-                {
-                    Acceleration(accelerationSpeed);
-                }
-                else if (engineValue - acceleration < 0)
-                {
-                    Deceleration(decelerationSpeed);
-                }
-            }
-            else if (engineValue < 0)
-            {
-                if (engineValue - acceleration < 0)
-                {
-                    Acceleration(-accelerationSpeed);
-                }
-                else if (engineValue - acceleration > 0)
-                {
-                    Deceleration(-decelerationSpeed);
-                }
-            }
+            //if (engineValue >= 0)
+            //{
+            //    if (engineValue - acceleration > 0)
+            //    {
+            //        Acceleration(accelerationSpeed);
+            //    }
+            //    else if (engineValue - acceleration < 0)
+            //    {
+            //        Deceleration(decelerationSpeed);
+            //    }
+            //}
+            //else if (engineValue < 0)
+            //{
+            //    if (engineValue - acceleration < 0)
+            //    {
+            //        Acceleration(-accelerationSpeed);
+            //    }
+            //    else if (engineValue - acceleration > 0)
+            //    {
+            //        Deceleration(-decelerationSpeed);
+            //    }
+            //}
+
+            UpdateValue(ref acceleration, 1);
+            UpdateValue(ref engineSound, 3);
         }
 
         private void FixedUpdate()
         {
             if (!anchorSet)
             {
-                if (Input.GetKey(KeyCode.A))
-                {
-                    if (engineRunning)
-                    {
-                        UpdateSteering(-1f);
-                    }
-                    else
-                    {
-                        ResidualTurningForce(-decelerationSpeed);
-                    }
-                }
-                else
-                {
-                    if (steering < 0f) ResidualTurningForce(-decelerationSpeed);
-                }
-
-                if (Input.GetKey(KeyCode.D))
-                {
-                    if (engineRunning)
-                    {
-                        UpdateSteering(1f);
-                    }
-                    else
-                    {
-                        ResidualTurningForce(decelerationSpeed);
-                    }
-                }
-                else
-                {
-                    if (steering > 0f) ResidualTurningForce(decelerationSpeed);
-                }
-
                 if (engineValue >= 0)
                 {
                     if (engineRunning)
                     {
                         engine.Accelerate(acceleration);
+                        engine.UpdateEngineSoundValue(engineSound);
                     }
                     else
                     {
@@ -120,6 +94,7 @@ namespace BoatAttack
                     if (engineRunning)
                     {
                         engine.Accelerate(acceleration);
+                        engine.UpdateEngineSoundValue(engineSound);
                     }
                     else
                     {
@@ -127,36 +102,76 @@ namespace BoatAttack
                     }
                 }
 
-                if (Input.GetKeyDown(KeyCode.F))
+                if (Input.GetKeyDown(KeyCode.F) && !anchorDropped)
                 {
                     GameObject anchor = GameObject.FindGameObjectWithTag("Anchor");
                     anchor.transform.parent = null;
                     anchor.GetComponent<Collider>().enabled = true;
                     BoatEventManager.TriggerEvent("dropAnchor");
+                    anchorDropped = true;
                 }
             }
             else
             {
                 if (Input.GetKeyDown(KeyCode.F))
                 {
-                    anchorSet = false;
-                    anchorProbability = 2f;
-                    GameObject anchor = GameObject.FindGameObjectWithTag("Anchor");
-                    anchor.transform.parent = transform;
-                    anchor.GetComponent<Collider>().enabled = false;
                     BoatEventManager.TriggerEvent("resetAnchor");
                 }
 
                 if (acceleration > 0f)
                 {
-                    ResidualForwardForce(4f * decelerationSpeed);
+                    ResidualForwardForce(2 * decelerationSpeed);
                 }
 
                 if (acceleration < 0f)
                 {
-                    ResidualForwardForce(-4f * decelerationSpeed);
+                    ResidualForwardForce(2 * decelerationSpeed);
+                }
+
+                engine.UpdateEngineSoundValue(engineSound);
+            }
+
+            if (Input.GetKey(KeyCode.A))
+            {
+                if (engineRunning)
+                {
+                    UpdateSteering(-1f);
+                }
+                else
+                {
+                    ResidualTurningForce(-decelerationSpeed);
                 }
             }
+            else
+            {
+                if (steering < 0f) ResidualTurningForce(-decelerationSpeed);
+            }
+
+            if (Input.GetKey(KeyCode.D))
+            {
+                if (engineRunning)
+                {
+                    UpdateSteering(1f);
+                }
+                else
+                {
+                    ResidualTurningForce(decelerationSpeed);
+                }
+            }
+            else
+            {
+                if (steering > 0f) ResidualTurningForce(decelerationSpeed);
+            }
+        }
+
+        private void AnchorUnset()
+        {
+            anchorSet = false;
+            anchorDropped = false;
+            anchorProbability = 2f;
+            GameObject anchor = GameObject.FindGameObjectWithTag("Anchor");
+            anchor.transform.parent = transform;
+            anchor.GetComponent<Collider>().enabled = false;
         }
 
         private void StopEngine()
@@ -197,7 +212,7 @@ namespace BoatAttack
             {
                 if (engineValue != 0)
                 {
-                    anchorProbability += anchorProbabilityIncrement * Time.deltaTime;
+                    anchorProbability += anchorProbability * anchorProbabilityIncrement * Time.deltaTime;
                     if (UnityEngine.Random.Range(0f, 100f) <= anchorProbability)
                     {
                         anchorSet = true;
@@ -213,18 +228,45 @@ namespace BoatAttack
             engineValue = value;
         }
 
-        private void Acceleration(float accelerationSpeed)
+        private void Acceleration(ref float value, float accelerationSpeed)
         {
-            acceleration += accelerationSpeed * Time.deltaTime;
-            if (accelerationSpeed > 0) acceleration = Mathf.Clamp(acceleration, float.MinValue, engineValue);
-            else acceleration = Mathf.Clamp(acceleration, engineValue, float.MaxValue);
+            value += accelerationSpeed * Time.deltaTime;
+            if (accelerationSpeed > 0) value = Mathf.Clamp(value, float.MinValue, engineValue);
+            else value = Mathf.Clamp(value, engineValue, float.MaxValue);
         }
 
-        private void Deceleration(float decelerationSpeed)
+        private void Deceleration(ref float value, float decelerationSpeed)
         {
-            acceleration -= decelerationSpeed * Time.deltaTime;
-            if (decelerationSpeed > 0) acceleration = Mathf.Clamp(acceleration, engineValue, float.MaxValue);
-            else acceleration = Mathf.Clamp(acceleration, float.MinValue, engineValue);
+            value -= decelerationSpeed * Time.deltaTime;
+            if (decelerationSpeed > 0) value = Mathf.Clamp(value, engineValue, float.MaxValue);
+            else value = Mathf.Clamp(value, float.MinValue, engineValue);
         }
+
+        private void UpdateValue(ref float value, float modifier)
+        {
+            if (engineValue >= 0)
+            {
+                if (engineValue - value > 0)
+                {
+                    Acceleration(ref value, modifier * accelerationSpeed);
+                }
+                else if (engineValue - value < 0)
+                {
+                    Deceleration(ref value, modifier * decelerationSpeed);
+                }
+            }
+            else if (engineValue < 0)
+            {
+                if (engineValue - value < 0)
+                {
+                    Acceleration(ref value, modifier * -accelerationSpeed);
+                }
+                else if (engineValue - value > 0)
+                {
+                    Deceleration(ref value, modifier * -decelerationSpeed);
+                }
+            }
+        }
+
     }
 }

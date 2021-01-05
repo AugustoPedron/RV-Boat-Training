@@ -31,7 +31,7 @@ namespace BoatAttack
         private float _turnVel;
         private float _currentAngle;
         private bool updateFuel = false;
-        private float engineValue = 0f;
+        private float engineSoundValue = 0f;
         [SerializeField]
         private float pitchMulti = 0.01f;
         [SerializeField]
@@ -56,8 +56,8 @@ namespace BoatAttack
 
         private void FixedUpdate()
         {
-            VelocityMag = RB.velocity.sqrMagnitude; // get the sqr mag
-            engineSound.pitch = Mathf.Min(pitchOffset + (engineValue * pitchMulti), 2.5f); // use some magice numbers to control the pitch of the engine sound
+            //VelocityMag = RB.velocity.sqrMagnitude; // get the sqr mag
+            engineSound.pitch = Mathf.Min(pitchOffset + (Mathf.Abs(engineSoundValue) * pitchMulti), 2.5f); // use some magice numbers to control the pitch of the engine sound
 
             // Get the water level from the engines position and store it
             _point[0] = transform.TransformPoint(enginePosition);
@@ -71,9 +71,13 @@ namespace BoatAttack
         {
             if (updateFuel)
             {
-                fuel = fuel >= fuelConsumptionPerHour / 3600 * Time.fixedDeltaTime ? fuel - (fuelConsumptionPerHour / 3600 * Time.fixedDeltaTime) : 0f;
+                fuel = fuel >= (fuelConsumptionPerHour / 3600) * Time.fixedDeltaTime ? fuel - ((fuelConsumptionPerHour / 3600) * Time.fixedDeltaTime) : 0f;
                 updateFuel = false;
-                if (fuel == 0f) BoatEventManager.TriggerEvent("emptyTank");
+                if (fuel == 0f)
+                {
+                    BoatEventManager.TriggerEvent("emptyTank");
+                    engineSound.Stop();
+                }
             }
         }
 
@@ -97,7 +101,6 @@ namespace BoatAttack
                 RB.AddForce(horsePower * modifier * forward, ForceMode.Acceleration); // add force forward based on input and horsepower
                 RB.AddTorque(-Vector3.right * modifier * 0.03f, ForceMode.Acceleration);
                 updateFuel = true;
-                engineValue = modifier;
             }
         }
 
@@ -111,8 +114,6 @@ namespace BoatAttack
                 forward.Normalize();
                 RB.AddForce(horsePower * modifier * forward, ForceMode.Acceleration); // add force forward based on input and horsepower
                 RB.AddRelativeTorque(-Vector3.right * modifier * 0.01f, ForceMode.Acceleration);
-                engineValue = 0;
-                waterSound.Stop();
             }
         }
 
@@ -167,6 +168,16 @@ namespace BoatAttack
             Gizmos.color = Color.green;
             Gizmos.matrix = transform.localToWorldMatrix;
             Gizmos.DrawCube(enginePosition, new Vector3(0.1f, 0.2f, 0.3f)); // Draw teh engine position with sphere
+        }
+
+        public void UpdateEngineSoundValue(float value)
+        {
+            engineSoundValue = value;
+        }
+
+        public void StopEngineSound()
+        {
+            waterSound.Stop();
         }
     }
 }
