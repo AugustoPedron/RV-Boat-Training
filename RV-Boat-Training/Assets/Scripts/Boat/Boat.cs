@@ -67,9 +67,11 @@ namespace BoatAttack
             //        Deceleration(-decelerationSpeed);
             //    }
             //}
-
-            UpdateValue(ref acceleration, 1);
-            UpdateValue(ref engineSound, 3);
+            if (!PauseMenu.gameIsPaused)
+            {
+                UpdateValue(ref acceleration, 1);
+                UpdateValue(ref engineSound, 3);
+            }
         }
 
         private void FixedUpdate()

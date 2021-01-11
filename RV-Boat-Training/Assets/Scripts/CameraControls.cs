@@ -14,6 +14,7 @@ public class CameraControls : MonoBehaviour
     private bool usingThrottle = false;
     private Rect position;
     private int crosshairDimension = 7;
+    private bool moveCamera = true;
 
     private void OnEnable()
     {
@@ -28,8 +29,9 @@ public class CameraControls : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
         //----------- Movimento della camera con il mouse -----------------
-        if (!usingThrottle)
+        if (!usingThrottle && !PauseMenu.gameIsPaused)
         {
             pitch -= Input.GetAxis("Mouse Y") * mouseSpeed;
             pitch = Mathf.Clamp(pitch, -90f, 90f);

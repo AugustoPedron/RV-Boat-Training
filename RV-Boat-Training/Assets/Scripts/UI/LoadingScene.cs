@@ -20,7 +20,7 @@ public class LoadingScene : MonoBehaviour
     {
         yield return new WaitForSeconds(2);
 
-        AsyncOperation asyncOperation = SceneManager.LoadSceneAsync("SampleScene");
+        AsyncOperation asyncOperation = SceneManager.LoadSceneAsync("SampleScene", LoadSceneMode.Additive);
         asyncOperation.allowSceneActivation = false;
 
         while (!asyncOperation.isDone)

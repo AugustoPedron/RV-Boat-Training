@@ -11,11 +11,13 @@ public class FollowBoat : MonoBehaviour
 
     void Update()
     {
-        transform.position = Quaternion.Euler(boatTransform.eulerAngles) * offset + boatTransform.position;
-        if (rotation)
-        {
-            if (yRotation) transform.rotation = boatTransform.rotation;
-            else transform.rotation = Quaternion.Euler(boatTransform.rotation.eulerAngles.x, 0, boatTransform.rotation.eulerAngles.z);
+        if (!PauseMenu.gameIsPaused) {
+            transform.position = Quaternion.Euler(boatTransform.eulerAngles) * offset + boatTransform.position;
+            if (rotation)
+            {
+                if (yRotation) transform.rotation = boatTransform.rotation;
+                else transform.rotation = Quaternion.Euler(boatTransform.rotation.eulerAngles.x, 0, boatTransform.rotation.eulerAngles.z);
+            }
         }
     }
 }

@@ -40,7 +40,7 @@ namespace BoatAttack
 
         private void Update()
         {
-            if (enableControl)
+            if (enableControl && !PauseMenu.gameIsPaused)
             {
                 rotation += Input.GetAxis("Mouse Y") * mouseSpeed;
                 rotation = Mathf.Clamp(rotation, minThrottleRotation, maxThrottleRotation);

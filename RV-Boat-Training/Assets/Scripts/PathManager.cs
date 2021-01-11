@@ -51,16 +51,18 @@ public class PathManager : MonoBehaviour
 
     private void Update()
     {
-        if (lastBuoy < YellowBuoys.Count)
-        {
-            Vector3 direction = boatTransform.position - YellowBuoys[lastBuoy].transform.position;
-            arrowTransform.rotation = arrowTransform.rotation * Quaternion.LookRotation(direction, Vector3.up);
-        }
+        if (!PauseMenu.gameIsPaused) {
+            if (lastBuoy < YellowBuoys.Count)
+            {
+                Vector3 direction = boatTransform.position - YellowBuoys[lastBuoy].transform.position;
+                arrowTransform.rotation = arrowTransform.rotation * Quaternion.LookRotation(direction, Vector3.up);
+            }
 
-        if (lastBuoy < segments.Count && !segments[lastBuoy].isLeft(boatTransform.position))
-        {
-            buoyBlinks[lastBuoy].ChangeColor();
-            lastBuoy++;
+            if (lastBuoy < segments.Count && !segments[lastBuoy].isLeft(boatTransform.position))
+            {
+                buoyBlinks[lastBuoy].ChangeColor();
+                lastBuoy++;
+            }
         }
     }
 
