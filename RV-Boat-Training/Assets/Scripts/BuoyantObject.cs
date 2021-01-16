@@ -221,9 +221,15 @@ namespace WaterSystem
 
         private void LateUpdate() { LocalToWorldConversion(); }
 
-        private void OnDisable() { LocalToWorldJob.Cleanup(_guid); }
+        private void OnDisable() { 
+            LocalToWorldJob.Cleanup(_guid);
+            //_samplePoints.Dispose();
+        }
 
-        private void OnDestroy() { LocalToWorldJob.Cleanup(_guid); }
+        private void OnDestroy() { 
+            LocalToWorldJob.Cleanup(_guid);
+            //_samplePoints.Dispose();
+        }
 
         private void LocalToWorldConversion()
         {
