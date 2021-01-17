@@ -271,7 +271,6 @@ GameObject:
   - component: {fileID: 701246268}
   - component: {fileID: 701246271}
   - component: {fileID: 701246270}
-  - component: {fileID: 701246269}
   m_Layer: 5
   m_Name: BlackImage
   m_TagString: Untagged
@@ -298,25 +297,6 @@ RectTransform:
   m_AnchoredPosition: {x: 57, y: -32.1}
   m_SizeDelta: {x: 1370.3749, y: 770.91187}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!95 &701246269
-Animator:
-  serializedVersion: 3
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 701246267}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: f3e9f3a2c4f245749afb442f23673cfb, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!114 &701246270
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -679,7 +659,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49c201978c60e94478fd620f88bd9caf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animator: {fileID: 701246269}
+  animator: {fileID: 1588497870}
   blackImage: {fileID: 701246270}
   loadingBar: {fileID: 1916733773}
   loadingBarObj: {fileID: 1916733771}
@@ -1463,7 +1443,7 @@ PrefabInstance:
     - target: {fileID: 8041255574162621876, guid: 161e00d8a46ac2646b4b505edde83001,
         type: 3}
       propertyPath: m_BlocksRaycasts
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8894808615145224480, guid: 161e00d8a46ac2646b4b505edde83001,
         type: 3}
