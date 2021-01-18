@@ -135,7 +135,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a39122ef75bff44988080382c45715d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _buoyancyType: 0
+  _buoyancyType: 3
   density: 0
   volume: 0
   voxelResolution: 0.51

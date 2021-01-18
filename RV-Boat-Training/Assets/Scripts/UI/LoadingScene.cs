@@ -8,16 +8,16 @@ public class LoadingScene : MonoBehaviour
 {
     public Animator animator;
     public Image blackImage;
-    public Slider loadingBar;
-    public GameObject loadingBarObj;
-    public GameObject loadingText;
+    public string sceneName;
+    public List<Slider> loadingBar;
+    public List<GameObject> loadingPanel;
     private AsyncOperation loading;
 
     private bool activeScene = false;
 
     void Start()
-    {
-         //StartCoroutine(LoadScene());
+    { 
+         
     }
 
     //IEnumerator LoadScene()
@@ -53,22 +53,27 @@ public class LoadingScene : MonoBehaviour
 
     private void Update()
     {
-        if (loading != null)
+        if (loading != null && loadingBar.Count > 0)
         {
             float progressValue = Mathf.Clamp01(loading.progress / 0.9f);
-            loadingBar.value = Mathf.Clamp01(loading.progress / 0.9f);
+            loadingBar[0].value = Mathf.Clamp01(loading.progress / 0.9f);
         }
     }
 
     public void LoadScene()
     {
         animator.SetBool("Fade", true);
-        loadingText.SetActive(true);
-        loadingBarObj.SetActive(true);
+        if (loadingPanel.Count > 0)
+        {
+            loadingPanel[0].SetActive(true);
+        }
     }
 
     public void StartLoading()
     {
-        loading = SceneManager.LoadSceneAsync("SampleScene", LoadSceneMode.Single);
+        Time.timeScale = 1;
+        AudioListener.pause = false;
+        loading = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
     }
+
 }

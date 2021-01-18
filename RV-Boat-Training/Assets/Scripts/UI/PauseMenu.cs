@@ -5,6 +5,11 @@ using UnityEngine;
 public class PauseMenu : MonoBehaviour
 {
     public static bool gameIsPaused = false;
+    public CanvasGroup menuCanvasGroup;
+    public Animator animator;
+    public LoadingScene loader;
+
+    private bool load = false;
 
     void Update()
     {
@@ -23,6 +28,9 @@ public class PauseMenu : MonoBehaviour
             AudioListener.pause = true;
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
+            menuCanvasGroup.blocksRaycasts = true;
+            animator.SetBool("Start", true);
+            animator.SetBool("Fade", false);
         }
         else
         {
@@ -30,6 +38,22 @@ public class PauseMenu : MonoBehaviour
             AudioListener.pause = false;
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
+            menuCanvasGroup.blocksRaycasts = false;
+            animator.SetBool("Fade", true);
+            animator.SetBool("Start", false);
         }
+    }
+
+    public void FadeOut()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        animator.SetBool("Fade", true);
+        animator.SetBool("Start", false);
+        load = true;
+    }
+
+    public void FadeOutEvent()
+    {
+        if (load) loader.LoadScene();
     }
 }
