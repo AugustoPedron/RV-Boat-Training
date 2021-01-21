@@ -12,7 +12,8 @@ namespace BoatAttack
         [NonSerialized] public float VelocityMag; // Boats velocity
 
         public AudioSource engineSound; // Engine sound clip
-        public AudioSource waterSound; // Water sound clip
+        public AudioSource waterSoundMoving; // Water sound clip when the boat is moving
+        public AudioSource waterSound; //Water sound when the boat is not moving
 
         //engine stats
         public float steeringTorque = 5f;
@@ -41,6 +42,9 @@ namespace BoatAttack
         {
             if (engineSound)
                 engineSound.time = UnityEngine.Random.Range(0f, engineSound.clip.length); // randomly start the engine sound
+
+            if (waterSoundMoving)
+                waterSoundMoving.time = UnityEngine.Random.Range(0f, waterSoundMoving.clip.length); // randomly start the water_highSpeed sound
 
             if (waterSound)
                 waterSound.time = UnityEngine.Random.Range(0f, waterSound.clip.length); // randomly start the water sound
@@ -177,7 +181,7 @@ namespace BoatAttack
 
         public void StopEngineSound()
         {
-            waterSound.Stop();
+            waterSoundMoving.Stop();
         }
     }
 }
