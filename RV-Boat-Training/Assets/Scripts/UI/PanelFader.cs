@@ -20,6 +20,7 @@ public class PanelFader : MonoBehaviour
     {
         CanvasGroup activePanel = uiManager.GetActivePanel();
         CanvasGroup nextPanel = uiManager.GetNextPanel();
+        if (uiManager.GetActivePanelNum() == 6) activePanel = cvnGroup;
         StartCoroutine(DoFade(activePanel, nextPanel, activePanel.alpha, 0));
         activePanel.blocksRaycasts = false;
         nextPanel.blocksRaycasts = true;
