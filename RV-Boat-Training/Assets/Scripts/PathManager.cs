@@ -47,6 +47,8 @@ public class PathManager : MonoBehaviour
         arrowTransform.position = new Vector3();
         arrowTransform.rotation = Quaternion.LookRotation(direction, Vector3.up);
         arrowTransform.position = arrowPosition;
+
+        StartCoroutine(EnableRemainingAudio());
     }
 
     private void Update()
@@ -89,6 +91,10 @@ public class PathManager : MonoBehaviour
                 instance = Instantiate(YellowBuoyPrefab, new Vector3(0, 0, 0), Quaternion.identity);
                 instance.transform.SetParent(transform);
                 instance.transform.position = path.m_Waypoints[i - 1].position;
+                if(i == 1)
+                {
+                    instance.GetComponent<AudioSource>().enabled = true;
+                }
                 YellowBuoys.Add(instance);
                 buoyBlinks.Add(instance.GetComponentInChildren<BuoyBlink>());
             }
@@ -136,5 +142,17 @@ public class PathManager : MonoBehaviour
         {
             return Vector3.Cross(ab, point - a).y > 0;
         }
+    }
+
+    IEnumerator EnableRemainingAudio()
+    {
+        yield return new WaitForSeconds(1f);
+
+        for(int i = 1; i< YellowBuoys.Count; i++)
+        {
+            YellowBuoys[i].GetComponent<AudioSource>().enabled = true;
+        }
+
+        yield break;
     }
 }

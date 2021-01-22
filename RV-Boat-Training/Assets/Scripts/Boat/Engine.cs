@@ -21,6 +21,9 @@ namespace BoatAttack
         public float fuel = 100f;
         public float tankCapacity = 200f;
         public float fuelConsumptionPerHour = 30f;
+        public float maxVolumeWater = 0.75f;
+        public float maxVolumeWaterMoving = 0.2f;
+
         private NativeArray<float3> _point; // engine submerged check
         private float3[] _heights = new float3[1]; // engine submerged check
         private float3[] _normals = new float3[1]; // engine submerged check
@@ -105,6 +108,14 @@ namespace BoatAttack
                 RB.AddForce(horsePower * modifier * forward, ForceMode.Acceleration); // add force forward based on input and horsepower
                 RB.AddTorque(-Vector3.right * modifier * 0.03f, ForceMode.Acceleration);
                 updateFuel = true;
+
+                //blend lineare dei volumi
+                //waterSound.volume = maxVolumeWater * (1 - Mathf.Clamp01((Mathf.Abs(modifier) - 0.25f) * 1.81f));
+                //waterSoundMoving.volume = maxVolumeWaterMoving * Mathf.Clamp01((Mathf.Abs(modifier) - 0.3f) * 1.428f);
+
+                //blend esponenziale dei volumi
+                waterSound.volume = maxVolumeWater * (1 - Mathf.Clamp01((Mathf.Exp(Mathf.Abs(modifier)) - 1f) * 0.5f));
+                waterSoundMoving.volume = maxVolumeWaterMoving * Mathf.Clamp01((Mathf.Exp(Mathf.Abs(modifier)) - 1f) * 0.5f);
             }
         }
 
@@ -118,6 +129,14 @@ namespace BoatAttack
                 forward.Normalize();
                 RB.AddForce(horsePower * modifier * forward, ForceMode.Acceleration); // add force forward based on input and horsepower
                 RB.AddRelativeTorque(-Vector3.right * modifier * 0.01f, ForceMode.Acceleration);
+
+                //blend lineare dei volumi
+                //waterSound.volume = maxVolumeWater * (1 - Mathf.Clamp01((Mathf.Abs(modifier) - 0.25f) * 1.81f));
+                //waterSoundMoving.volume = maxVolumeWaterMoving * Mathf.Clamp01((Mathf.Abs(modifier) - 0.3f) * 1.428f);
+
+                //blend esponenziale dei volumi
+                waterSound.volume = maxVolumeWater * (1 - Mathf.Clamp01((Mathf.Exp(Mathf.Abs(modifier)) - 1f) * 0.5f));
+                waterSoundMoving.volume = maxVolumeWaterMoving * Mathf.Clamp01((Mathf.Exp(Mathf.Abs(modifier)) - 1f) * 0.5f);
             }
         }
 
