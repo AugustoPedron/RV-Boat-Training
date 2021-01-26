@@ -6,7 +6,6 @@ using UnityEngine.UI;
 
 public class UIToolKit : MonoBehaviour
 {
-    public Button referenceButton;
     public Color color;
     public Color normalColor;
     public Color highlightenedColor;
@@ -16,16 +15,13 @@ public class UIToolKit : MonoBehaviour
 
     public void ChangeButtonsStyle()
     {
-        if (referenceButton != null && menu != null)
+        if (CheckNullButton())
         {
-            //ColorBlock cb = referenceButton.colors;
             ColorBlock cb = ColorBlock.defaultColorBlock;
             cb.normalColor = normalColor;
             cb.highlightedColor = highlightenedColor;
             cb.pressedColor = pressedColor;
 
-            //Color c = referenceButton.GetComponent<Image>().color;
-            //TMP_FontAsset f = referenceButton.GetComponentInChildren<TMP_Text>().font;
             Button[] buttons = menu.GetComponentsInChildren<Button>();
 
             for (int i = 0; i < buttons.Length; i++)
@@ -39,7 +35,7 @@ public class UIToolKit : MonoBehaviour
 
     public void ChangeTextsStyle()
     {
-        if (font != null && menu != null)
+        if (CheckNullText())
         {
             TMP_Text[] texts = menu.GetComponentsInChildren<TMP_Text>();
             for (int i = 0; i < texts.Length; i++)
@@ -52,4 +48,13 @@ public class UIToolKit : MonoBehaviour
         }
     }
 
+    private bool CheckNullButton()
+    {
+        return menu != null && color != null && normalColor != null && highlightenedColor != null && pressedColor != null && font != null ? true : false;
+    }
+
+    private bool CheckNullText()
+    {
+        return menu != null && font != null ? true : false;
+    }
 }
