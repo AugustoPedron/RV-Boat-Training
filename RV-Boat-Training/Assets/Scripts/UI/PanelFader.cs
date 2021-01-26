@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class PanelFader : MonoBehaviour
 {
@@ -14,6 +16,14 @@ public class PanelFader : MonoBehaviour
         StartCoroutine(DoFade(nextPanel, cvnGroup.alpha, 0));
         cvnGroup.blocksRaycasts = false;
         nextPanel.blocksRaycasts = true;
+    }
+
+    public void FadeNextReset(CanvasGroup nextPanel)
+    {
+        StartCoroutine(DoFade(nextPanel, cvnGroup.alpha, 0));
+        cvnGroup.blocksRaycasts = false;
+        nextPanel.blocksRaycasts = true;
+        uiManager.ResetPanels(nextPanel);
     }
 
     public void FadeNext()
@@ -38,6 +48,9 @@ public class PanelFader : MonoBehaviour
 
     private IEnumerator DoFade(CanvasGroup nextPanel, float start, float end)
     {
+        GameObject obj = EventSystem.current.currentSelectedGameObject;
+        obj.GetComponent<Button>().interactable = false;
+
         float counter = 0f;
 
         while (counter < duration)
@@ -59,10 +72,15 @@ public class PanelFader : MonoBehaviour
 
             yield return null;
         }
+
+        obj.GetComponent<Button>().interactable = true;
     }
 
     private IEnumerator DoFade(CanvasGroup activePanel, CanvasGroup nextPanel, float start, float end)
     {
+        GameObject obj = EventSystem.current.currentSelectedGameObject;
+        obj.GetComponent<Button>().interactable = false;
+
         float counter = 0f;
 
         while (counter < duration)
@@ -84,5 +102,7 @@ public class PanelFader : MonoBehaviour
 
             yield return null;
         }
+
+        obj.GetComponent<Button>().interactable = true;
     }
 }

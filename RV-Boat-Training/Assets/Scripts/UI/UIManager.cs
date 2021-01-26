@@ -32,4 +32,28 @@ public class UIManager : MonoBehaviour
     {
         return activePanel;
     }
+
+    public void ResetPanels(CanvasGroup cvnGroup)
+    {
+        int panelNum = GetPanelIndex(cvnGroup);
+
+        canvasGroups[1].alpha = 1;
+        for (int i = 2; i < canvasGroups.Count; i++)
+            canvasGroups[i].alpha = 0;
+
+        activePanel = panelNum;
+
+        if (panelNum == 7)
+        {
+            activePanel = 1;
+        }
+    }
+
+    private int GetPanelIndex(CanvasGroup cvnGroup)
+    {
+        for (int i = 0; i < canvasGroups.Count; i++)
+            if (canvasGroups[i] == cvnGroup) return i;
+
+        return -1;
+    }
 }
