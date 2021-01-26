@@ -10,6 +10,7 @@ public class UIToolKit : MonoBehaviour
     public Color normalColor;
     public Color highlightenedColor;
     public Color pressedColor;
+    public Color textColor;
     public TMP_FontAsset font;
     public Canvas menu;
 
@@ -29,6 +30,7 @@ public class UIToolKit : MonoBehaviour
                 buttons[i].colors = cb;
                 buttons[i].GetComponent<Image>().color = color;
                 buttons[i].GetComponentInChildren<TMP_Text>().font = font;
+                buttons[i].GetComponentInChildren<TMP_Text>().color = textColor;
             }
         }
     }
@@ -43,6 +45,7 @@ public class UIToolKit : MonoBehaviour
                 if (texts[i].GetComponentInParent<Button>() == null)
                 {
                     texts[i].font = font;
+                    texts[i].color = textColor;
                 }
             }
         }
@@ -50,11 +53,11 @@ public class UIToolKit : MonoBehaviour
 
     private bool CheckNullButton()
     {
-        return menu != null && color != null && normalColor != null && highlightenedColor != null && pressedColor != null && font != null ? true : false;
+        return menu != null && color != null && normalColor != null && highlightenedColor != null && pressedColor != null && font != null && textColor != null ? true : false;
     }
 
     private bool CheckNullText()
     {
-        return menu != null && font != null ? true : false;
+        return menu != null && font != null && textColor != null ? true : false;
     }
 }

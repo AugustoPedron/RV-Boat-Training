@@ -1908,8 +1908,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4289218816
-  m_fontColor: {r: 0, g: 0.28449622, b: 0.6603774, a: 1}
+    rgba: 4289284352
+  m_fontColor: {r: 0, g: 0.28627452, b: 0.6627451, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -5538,6 +5538,7 @@ MonoBehaviour:
   normalColor: {r: 0.36078432, g: 0.6156863, b: 0.74509805, a: 0.7372549}
   highlightenedColor: {r: 0.5921569, g: 0.7490196, b: 0.83137256, a: 0.8666667}
   pressedColor: {r: 0.7176471, g: 0.8666667, b: 0.94509804, a: 1}
+  textColor: {r: 0, g: 0.28627452, b: 0.6627451, a: 1}
   font: {fileID: 11400000, guid: efcc40de9027cb049abc59487886402d, type: 2}
   menu: {fileID: 1486785446630422882}
 --- !u!1 &5500548800146472699
