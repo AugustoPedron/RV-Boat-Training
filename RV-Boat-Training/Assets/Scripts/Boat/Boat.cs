@@ -28,6 +28,8 @@ namespace BoatAttack
         private float additionalRadius = 160f;
         private float minSafeDistance = 160f;
         private float minSafeDistanceSqr = 0;
+        private float minDistanceBeforeRestart = 70f;
+        private float minDistanceBeforeRestartSqr = 0;
 
         private void Awake()
         {
@@ -54,6 +56,7 @@ namespace BoatAttack
         private void Start()
         {
             minSafeDistanceSqr = minSafeDistance * minSafeDistance;
+            minDistanceBeforeRestartSqr = minDistanceBeforeRestart * minDistanceBeforeRestart;
         }
 
         private void Update()
@@ -308,6 +311,12 @@ namespace BoatAttack
                     {
                         //Debug.Log("sei troppo vicino alla nave. Attenzione!");
                         //riprodurre audio di avviso nel caso in cui le due barche siano troppo vicine
+
+                        if(directionToIntersection.sqrMagnitude <= minDistanceBeforeRestartSqr || directionToBoat.sqrMagnitude <= minDistanceBeforeRestartSqr)
+                        {
+                            //ricarica la scena nel caso in cui l'utente si sia avvicinato troppo alla barca e quindi abbia fallito la prova
+                            BoatEventManager.TriggerEvent("reloadScene");
+                        }
                     }
                 }
             }
@@ -316,7 +325,7 @@ namespace BoatAttack
         //Calculate the intersection point of two lines. Returns true if lines intersect, otherwise false.
         //Note that in 3d, two lines do not intersect most of the time. So if the two lines are not in the 
         //same plane, use ClosestPointsOnTwoLines() instead.
-        public bool LineLineIntersection(out Vector3 intersection, Vector3 linePoint1, Vector3 lineVec1, Vector3 linePoint2, Vector3 lineVec2)
+        private bool LineLineIntersection(out Vector3 intersection, Vector3 linePoint1, Vector3 lineVec1, Vector3 linePoint2, Vector3 lineVec2)
         {
 
             Vector3 lineVec3 = linePoint2 - linePoint1;

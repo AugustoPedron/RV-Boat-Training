@@ -14,11 +14,26 @@ public class LoadingScene : MonoBehaviour
     private AsyncOperation loading;
 
     private bool activeScene = false;
+    private string actualScene;
+    private bool reloadScene = false;
+
+    private void OnEnable()
+    {
+        BoatEventManager.StartListening("reloadScene", ReloadScene);
+    }
+
+    private void OnDisable()
+    {
+        BoatEventManager.StopListening("reloadScene", ReloadScene);
+    }
 
     private void Awake()
     {
         //Application.targetFrameRate = 60;
         //QualitySettings.vSyncCount = 1;
+        Scene scene = SceneManager.GetActiveScene();
+        actualScene = scene.name;
+        reloadScene = false;
     }
 
     private void Update()
@@ -43,7 +58,16 @@ public class LoadingScene : MonoBehaviour
     {
         Time.timeScale = 1;
         AudioListener.pause = false;
-        loading = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
+        if(reloadScene)
+            loading = SceneManager.LoadSceneAsync(actualScene, LoadSceneMode.Single);
+        else
+            loading = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
     }
 
+    public void ReloadScene()
+    {
+        BoatEventManager.StopListening("reloadScene", ReloadScene);
+        reloadScene = true;
+        LoadScene();
+    }
 }

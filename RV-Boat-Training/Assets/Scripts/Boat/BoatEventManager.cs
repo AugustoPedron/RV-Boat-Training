@@ -73,7 +73,8 @@ public class BoatEventManager : MonoBehaviour
         Action thisEvent = null;
         if (instance.eventDictionary.TryGetValue(eventName, out thisEvent))
         {
-            thisEvent.Invoke();
+            if(thisEvent != null)
+                thisEvent.Invoke();
         }
     }
 
