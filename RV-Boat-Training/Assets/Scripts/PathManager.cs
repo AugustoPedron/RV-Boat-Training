@@ -14,11 +14,29 @@ public class PathManager : MonoBehaviour
 
     private int lastBuoy = 0;
     [SerializeField]
+    private float maxDistanceFromPath = 80f;
+    private float maxDistanceFromPathSqr = 0f;
+    [SerializeField]
+    private float maxAngle = 70f;
+    [SerializeField]
     private List<GameObject> YellowBuoys = new List<GameObject>();
     [SerializeField]
     private List<Buoy> buoyBlinks = new List<Buoy>();
     [SerializeField]
     private Transform arrowTransform;
+
+    private void OnDrawGizmos()
+    {
+        for (int i = 0; i < YellowBuoys.Count; i++)
+        {
+            Gizmos.color = Color.green;
+            Vector3 forward = YellowBuoys[i].transform.forward.normalized * directionLenght;
+            Gizmos.DrawRay(YellowBuoys[i].transform.position, forward);
+
+            Gizmos.DrawRay(YellowBuoys[i].transform.position, Quaternion.Euler(0, 70, 0) * forward);
+            Gizmos.DrawRay(YellowBuoys[i].transform.position, Quaternion.Euler(0, -70, 0) * forward);
+        }
+    }
 
     private void OnEnable()
     {
@@ -51,6 +69,11 @@ public class PathManager : MonoBehaviour
             {
                 Vector3 direction = boatTransform.position - YellowBuoys[lastBuoy].transform.position;
                 arrowTransform.rotation = arrowTransform.rotation * Quaternion.LookRotation(direction, Vector3.up);
+                if (CheckDistanceFromPath())
+                {
+                    //Debug.Log("wrongDirection");
+                    //riprodurre audio di avviso per l'allontanamento dal percorso
+                }
             }
 
             if (lastBuoy == YellowBuoys.Count)
@@ -66,6 +89,8 @@ public class PathManager : MonoBehaviour
         Reset();
         Vector3 position = transform.position;
         Quaternion rotation = transform.rotation;
+        Vector3 boxColliderSize = new Vector3(maxDistanceFromPath * 2, 25, 0.1f);
+
         transform.SetPositionAndRotation(new Vector3(0, 0, 0), Quaternion.identity);
 
         GameObject instance;
@@ -78,6 +103,7 @@ public class PathManager : MonoBehaviour
                 instance = Instantiate(YellowBuoyPrefab, new Vector3(0, 0, 0), Quaternion.identity);
                 instance.transform.SetParent(transform);
                 instance.transform.position = path.m_Waypoints[i - 1].position;
+                instance.GetComponent<BoxCollider>().size = boxColliderSize;
                 if (i == 1)
                 {
                     instance.GetComponent<AudioSource>().enabled = true;
@@ -91,6 +117,7 @@ public class PathManager : MonoBehaviour
         instance = Instantiate(YellowBuoyPrefab, new Vector3(0, 0, 0), Quaternion.identity);
         instance.transform.SetParent(transform);
         instance.transform.position = path.m_Waypoints[path.m_Waypoints.Length - 1].position;
+        instance.GetComponent<BoxCollider>().size = boxColliderSize;
         YellowBuoys.Add(instance);
         buoyBlinks.Add(instance.GetComponentInChildren<Buoy>());
 
@@ -134,11 +161,13 @@ public class PathManager : MonoBehaviour
 
         for (int i = 0; i < YellowBuoys.Count - 1; i++)
         {
-            direction = YellowBuoys[i].transform.position - YellowBuoys[i + 1].transform.position;
+            direction = -YellowBuoys[i].transform.position + YellowBuoys[i + 1].transform.position;
             YellowBuoys[i].transform.rotation = Quaternion.LookRotation(direction, Vector3.up);
         }
 
-        YellowBuoys[YellowBuoys.Count-1].transform.rotation = Quaternion.LookRotation(direction, Vector3.up);
+        YellowBuoys[YellowBuoys.Count - 1].transform.rotation = Quaternion.LookRotation(direction, Vector3.up);
+
+        maxDistanceFromPathSqr = maxDistanceFromPath * maxDistanceFromPath;
     }
 
     private void BuoyReached()
@@ -146,8 +175,22 @@ public class PathManager : MonoBehaviour
         buoyBlinks[lastBuoy].ChangeColor();
         YellowBuoys[lastBuoy].GetComponent<BoxCollider>().enabled = false;
         lastBuoy++;
-        if(lastBuoy < YellowBuoys.Count) YellowBuoys[lastBuoy].GetComponent<BoxCollider>().enabled = true;
+        if (lastBuoy < YellowBuoys.Count) YellowBuoys[lastBuoy].GetComponent<BoxCollider>().enabled = true;
 
         if (lastBuoy == YellowBuoys.Count) BoatEventManager.StopListening("buoyReached", BuoyReached);
+    }
+
+    //controllo sull'allontanamento dal percorso indicato
+    private bool CheckDistanceFromPath()
+    {
+        Vector3 direction = (YellowBuoys[lastBuoy].transform.position + gameObject.transform.position) - boatTransform.position;
+        Vector3 boatForward = boatTransform.forward;
+
+        float angle = Vector3.Angle(direction, boatForward);
+
+        if (angle > 70 && direction.sqrMagnitude >= maxDistanceFromPathSqr)
+            return true;
+
+        return false;
     }
 }
