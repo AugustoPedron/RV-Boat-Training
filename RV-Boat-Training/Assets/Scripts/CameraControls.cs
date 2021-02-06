@@ -14,11 +14,17 @@ public class CameraControls : MonoBehaviour
     private bool usingThrottle = false;
     private Rect position;
     private int crosshairDimension = 7;
-    private bool moveCamera = true;
+    private bool cameraEnabled = true;
 
     private void OnEnable()
     {
         Cursor.lockState = CursorLockMode.Locked;
+        BoatEventManager.StartListening("endNavigation", DisableCameraMovements);
+    }
+
+    private void OnDisable()
+    {
+        BoatEventManager.StopListening("endNavigation", DisableCameraMovements);
     }
 
     private void Start()
@@ -31,7 +37,7 @@ public class CameraControls : MonoBehaviour
     {
 
         //----------- Movimento della camera con il mouse -----------------
-        if (!usingThrottle && !PauseMenu.gameIsPaused)
+        if (cameraEnabled && !usingThrottle && !PauseMenu.gameIsPaused)
         {
             pitch -= Input.GetAxis("Mouse Y") * mouseSpeed;
             pitch = Mathf.Clamp(pitch, -90f, 90f);
@@ -43,28 +49,31 @@ public class CameraControls : MonoBehaviour
 
     private void FixedUpdate()
     {
-        //---------- Blocco della camera quando si vuole interagire con la leva del motore ---------------
-        if (Input.GetKey(KeyCode.Mouse0))
+        if (cameraEnabled)
         {
-            int layerMask = 1 << 8;
-            Ray ray = new Ray(transform.position, transform.forward);
-            RaycastHit hit;
-            if (Physics.Raycast(ray, out hit, Mathf.Infinity, layerMask))
+            //---------- Blocco della camera quando si vuole interagire con la leva del motore ---------------
+            if (Input.GetKey(KeyCode.Mouse0))
             {
-                //Debug.Log("hit");
-                usingThrottle = true;
-                BoatEventManager.TriggerEvent("enable");
-                //TO DO: finire la gestione una volta creato il modello della barca
+                int layerMask = 1 << 8;
+                Ray ray = new Ray(transform.position, transform.forward);
+                RaycastHit hit;
+                if (Physics.Raycast(ray, out hit, Mathf.Infinity, layerMask))
+                {
+                    //Debug.Log("hit");
+                    usingThrottle = true;
+                    BoatEventManager.TriggerEvent("enable");
+                    //TO DO: finire la gestione una volta creato il modello della barca
+                }
             }
-        }
 
-        //Debug.DrawRay(transform.position, transform.forward * 30, Color.red);
+            //Debug.DrawRay(transform.position, transform.forward * 30, Color.red);
 
-        if (usingThrottle && !Input.GetKey(KeyCode.Mouse0))
-        {
-            //Debug.Log("release");
-            usingThrottle = false;
-            BoatEventManager.TriggerEvent("disable");
+            if (usingThrottle && !Input.GetKey(KeyCode.Mouse0))
+            {
+                //Debug.Log("release");
+                usingThrottle = false;
+                BoatEventManager.TriggerEvent("disable");
+            }
         }
     }
 
@@ -76,5 +85,11 @@ public class CameraControls : MonoBehaviour
     private void LockUnlockCamera()
     {
         usingThrottle = !usingThrottle;
+    }
+
+    private void DisableCameraMovements()
+    {
+        BoatEventManager.StopListening("endNavigation", DisableCameraMovements);
+        cameraEnabled = false;
     }
 }

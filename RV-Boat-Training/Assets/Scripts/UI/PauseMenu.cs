@@ -10,10 +10,21 @@ public class PauseMenu : MonoBehaviour
     public LoadingScene loader;
 
     private bool load = false;
+    private bool menuEnabled = true;
+
+    private void OnEnable()
+    {
+        BoatEventManager.StartListening("endNavigation", DisableMenu);
+    }
+
+    private void OnDisable()
+    {
+        BoatEventManager.StopListening("endNavigation", DisableMenu);
+    }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (menuEnabled && Input.GetKeyDown(KeyCode.Escape))
         {
             gameIsPaused = !gameIsPaused;
             PauseGame();
@@ -55,5 +66,18 @@ public class PauseMenu : MonoBehaviour
     public void FadeOutEvent()
     {
         if (load) loader.LoadScene();
+    }
+
+    private void DisableMenu()
+    {
+        BoatEventManager.StopListening("endNavigation", DisableMenu);
+        menuEnabled = false;
+        Time.timeScale = 0;
+        AudioListener.pause = true;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        menuCanvasGroup.blocksRaycasts = true;
+        animator.SetBool("Start", true);
+        animator.SetBool("Fade", false);
     }
 }

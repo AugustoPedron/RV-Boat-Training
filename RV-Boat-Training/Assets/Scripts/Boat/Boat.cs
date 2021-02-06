@@ -22,6 +22,7 @@ namespace BoatAttack
         private bool anchorDropped = false;
         private float engineValue = 0f;
         private float engineSound = 0f;
+        private bool controlsEnbabled = true;
 
         private void Awake()
         {
@@ -34,6 +35,7 @@ namespace BoatAttack
             BoatEventManager.StartListening("emptyTank", StopEngine);
             BoatEventManager.StartListening("anchorSet", coroutineWrapper.Invoke);
             BoatEventManager.StartListening("anchorUnset", AnchorUnset);
+            BoatEventManager.StartListening("endNavigation", DisableControls);
         }
 
         private void OnDisable()
@@ -41,33 +43,12 @@ namespace BoatAttack
             BoatEventManager.StopListening("emptyTank", StopEngine);
             BoatEventManager.StopListening("anchorSet", coroutineWrapper.Invoke);
             BoatEventManager.StopListening("anchorUnset", AnchorUnset);
+            BoatEventManager.StopListening("endNavigation", DisableControls);
         }
 
         private void Update()
         {
-            //if (engineValue >= 0)
-            //{
-            //    if (engineValue - acceleration > 0)
-            //    {
-            //        Acceleration(accelerationSpeed);
-            //    }
-            //    else if (engineValue - acceleration < 0)
-            //    {
-            //        Deceleration(decelerationSpeed);
-            //    }
-            //}
-            //else if (engineValue < 0)
-            //{
-            //    if (engineValue - acceleration < 0)
-            //    {
-            //        Acceleration(-accelerationSpeed);
-            //    }
-            //    else if (engineValue - acceleration > 0)
-            //    {
-            //        Deceleration(-decelerationSpeed);
-            //    }
-            //}
-            if (!PauseMenu.gameIsPaused)
+            if (controlsEnbabled && !PauseMenu.gameIsPaused)
             {
                 UpdateValue(ref acceleration, 1);
                 UpdateValue(ref engineSound, 3);
@@ -76,93 +57,96 @@ namespace BoatAttack
 
         private void FixedUpdate()
         {
-            if (!anchorSet)
+            if (controlsEnbabled)
             {
-                if (engineValue >= 0)
+                if (!anchorSet)
                 {
-                    if (engineRunning)
+                    if (engineValue >= 0)
                     {
-                        engine.Accelerate(acceleration);
-                        engine.UpdateEngineSoundValue(engineSound);
+                        if (engineRunning)
+                        {
+                            engine.Accelerate(acceleration);
+                            engine.UpdateEngineSoundValue(engineSound);
+                        }
+                        else
+                        {
+                            ResidualForwardForce(decelerationSpeed);
+                        }
                     }
-                    else
+
+                    if (engineValue < 0)
                     {
-                        ResidualForwardForce(decelerationSpeed);
+                        if (engineRunning)
+                        {
+                            engine.Accelerate(acceleration);
+                            engine.UpdateEngineSoundValue(engineSound);
+                        }
+                        else
+                        {
+                            ResidualForwardForce(-decelerationSpeed);
+                        }
                     }
-                }
 
-                if (engineValue < 0)
-                {
-                    if (engineRunning)
+                    if (Input.GetKeyDown(KeyCode.F) && !anchorDropped)
                     {
-                        engine.Accelerate(acceleration);
-                        engine.UpdateEngineSoundValue(engineSound);
+                        GameObject anchor = GameObject.FindGameObjectWithTag("Anchor");
+                        anchor.transform.parent = null;
+                        anchor.GetComponent<Collider>().enabled = true;
+                        BoatEventManager.TriggerEvent("dropAnchor");
+                        anchorDropped = true;
                     }
-                    else
-                    {
-                        ResidualForwardForce(-decelerationSpeed);
-                    }
-                }
-
-                if (Input.GetKeyDown(KeyCode.F) && !anchorDropped)
-                {
-                    GameObject anchor = GameObject.FindGameObjectWithTag("Anchor");
-                    anchor.transform.parent = null;
-                    anchor.GetComponent<Collider>().enabled = true;
-                    BoatEventManager.TriggerEvent("dropAnchor");
-                    anchorDropped = true;
-                }
-            }
-            else
-            {
-                if (Input.GetKeyDown(KeyCode.F))
-                {
-                    BoatEventManager.TriggerEvent("resetAnchor");
-                }
-
-                if (acceleration > 0f)
-                {
-                    ResidualForwardForce(2 * decelerationSpeed);
-                }
-
-                if (acceleration < 0f)
-                {
-                    ResidualForwardForce(2 * decelerationSpeed);
-                }
-
-                engine.UpdateEngineSoundValue(engineSound);
-            }
-
-            if (Input.GetKey(KeyCode.A))
-            {
-                if (engineRunning)
-                {
-                    UpdateSteering(-1f);
                 }
                 else
                 {
-                    ResidualTurningForce(-decelerationSpeed);
-                }
-            }
-            else
-            {
-                if (steering < 0f) ResidualTurningForce(-decelerationSpeed);
-            }
+                    if (Input.GetKeyDown(KeyCode.F))
+                    {
+                        BoatEventManager.TriggerEvent("resetAnchor");
+                    }
 
-            if (Input.GetKey(KeyCode.D))
-            {
-                if (engineRunning)
+                    if (acceleration > 0f)
+                    {
+                        ResidualForwardForce(2 * decelerationSpeed);
+                    }
+
+                    if (acceleration < 0f)
+                    {
+                        ResidualForwardForce(2 * decelerationSpeed);
+                    }
+
+                    engine.UpdateEngineSoundValue(engineSound);
+                }
+
+                if (Input.GetKey(KeyCode.A))
                 {
-                    UpdateSteering(1f);
+                    if (engineRunning)
+                    {
+                        UpdateSteering(-1f);
+                    }
+                    else
+                    {
+                        ResidualTurningForce(-decelerationSpeed);
+                    }
                 }
                 else
                 {
-                    ResidualTurningForce(decelerationSpeed);
+                    if (steering < 0f) ResidualTurningForce(-decelerationSpeed);
                 }
-            }
-            else
-            {
-                if (steering > 0f) ResidualTurningForce(decelerationSpeed);
+
+                if (Input.GetKey(KeyCode.D))
+                {
+                    if (engineRunning)
+                    {
+                        UpdateSteering(1f);
+                    }
+                    else
+                    {
+                        ResidualTurningForce(decelerationSpeed);
+                    }
+                }
+                else
+                {
+                    if (steering > 0f) ResidualTurningForce(decelerationSpeed);
+                }
             }
         }
 
@@ -268,6 +252,19 @@ namespace BoatAttack
                     Deceleration(ref value, modifier * -decelerationSpeed);
                 }
             }
+        }
+
+        private void DisableControls()
+        {
+            BoatEventManager.StopListening("endNavigation", DisableControls);
+            controlsEnbabled = false;
+            acceleration = 0;
+            steering = 0;
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            BoatEventManager.TriggerEvent("buoyReached");
         }
 
     }

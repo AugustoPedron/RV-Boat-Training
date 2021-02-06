@@ -18,29 +18,33 @@ public class PanelFader : MonoBehaviour
         nextPanel.blocksRaycasts = true;
     }
 
-    public void FadeNextReset(CanvasGroup nextPanel)
+    public void FadeNextReset(ButtonSettings newSettings)
     {
-        StartCoroutine(DoFade(nextPanel, cvnGroup.alpha, 0));
+        StartCoroutine(DoFade(newSettings.nextCanvas, cvnGroup.alpha, 0));
         cvnGroup.blocksRaycasts = false;
-        nextPanel.blocksRaycasts = true;
-        uiManager.ResetPanels(nextPanel);
+        newSettings.nextCanvas.blocksRaycasts = true;
+        uiManager.ResetPanels();
+        uiManager.ChangePreviousCanvas(newSettings.previousCanvas);
     }
 
     public void FadeNext()
     {
-        CanvasGroup activePanel = uiManager.GetActivePanel();
+        CanvasGroup activePanel = uiManager.GetActivePanel(true);
         CanvasGroup nextPanel = uiManager.GetNextPanel();
-        if (uiManager.GetActivePanelNum() == 6) activePanel = cvnGroup;
-        StartCoroutine(DoFade(activePanel, nextPanel, activePanel.alpha, 0));
-        activePanel.blocksRaycasts = false;
-        nextPanel.blocksRaycasts = true;
+        if (nextPanel != null)
+        {
+            //if (uiManager.GetActivePanelNum() == 6) activePanel = cvnGroup;
+            StartCoroutine(DoFade(activePanel, nextPanel, activePanel.alpha, 0));
+            activePanel.blocksRaycasts = false;
+            nextPanel.blocksRaycasts = true;
+        }
     }
 
     public void FadePrevious()
     {
-        CanvasGroup activePanel = uiManager.GetActivePanel();
+        CanvasGroup activePanel = uiManager.GetActivePanel(false);
         CanvasGroup nextPanel = uiManager.GetPreviousPanel();
-        if (uiManager.GetActivePanelNum() == 0) activePanel = cvnGroup;
+        //if (uiManager.GetActivePanelNum() == 0) activePanel = cvnGroup;
         StartCoroutine(DoFade(activePanel, nextPanel, activePanel.alpha, 0));
         activePanel.blocksRaycasts = false;
         nextPanel.blocksRaycasts = true;
