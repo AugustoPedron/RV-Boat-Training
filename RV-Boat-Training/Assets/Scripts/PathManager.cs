@@ -11,6 +11,7 @@ public class PathManager : MonoBehaviour
     public GameObject YellowBuoyPrefab;
     public Transform boatTransform;
     public GameObject EndNavigationPanel;
+    public bool enablePath = true;
 
     private int lastBuoy = 0;
     [SerializeField]
@@ -65,21 +66,24 @@ public class PathManager : MonoBehaviour
     {
         if (!PauseMenu.gameIsPaused)
         {
-            if (lastBuoy < YellowBuoys.Count)
+            if (enablePath)
             {
-                Vector3 direction = boatTransform.position - YellowBuoys[lastBuoy].transform.position;
-                arrowTransform.rotation = arrowTransform.rotation * Quaternion.LookRotation(direction, Vector3.up);
-                if (CheckDistanceFromPath())
+                if (lastBuoy < YellowBuoys.Count)
                 {
-                    //Debug.Log("wrongDirection");
-                    //riprodurre audio di avviso per l'allontanamento dal percorso
+                    Vector3 direction = boatTransform.position - YellowBuoys[lastBuoy].transform.position;
+                    arrowTransform.rotation = arrowTransform.rotation * Quaternion.LookRotation(direction, Vector3.up);
+                    if (CheckDistanceFromPath())
+                    {
+                        //Debug.Log("wrongDirection");
+                        //riprodurre audio di avviso per l'allontanamento dal percorso -> coroutine
+                    }
                 }
-            }
 
-            if (lastBuoy == YellowBuoys.Count)
-            {
-                EndNavigation();
-                lastBuoy++;
+                if (lastBuoy == YellowBuoys.Count)
+                {
+                    EndNavigation();
+                    lastBuoy++;
+                }
             }
         }
     }
@@ -193,4 +197,6 @@ public class PathManager : MonoBehaviour
 
         return false;
     }
+
+    
 }

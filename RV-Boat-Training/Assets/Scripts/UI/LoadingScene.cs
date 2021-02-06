@@ -17,8 +17,8 @@ public class LoadingScene : MonoBehaviour
 
     private void Awake()
     {
-        Application.targetFrameRate = 60;
-        QualitySettings.vSyncCount = 1;
+        //Application.targetFrameRate = 60;
+        //QualitySettings.vSyncCount = 1;
     }
 
     private void Update()
